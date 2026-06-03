@@ -1,0 +1,1865 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#6a11cb" />
+        <link rel="apple-touch-icon" href="icons/icon-192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Кубопад" />
+        <title>КУБОПАД</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: #0d0d0d;
+                color: #fff;
+                font-family: "Courier New", Courier, monospace;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                user-select: none;
+                overflow: hidden;
+                padding: 12px;
+                gap: 10px;
+            }
+            #title-row {
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                gap: 4px;
+                animation: titleGlow 3s ease-in-out infinite;
+                will-change: filter;
+            }
+            @keyframes titleGlow {
+                0%,
+                100% {
+                    filter: drop-shadow(0 0 8px rgba(252, 228, 168, 0.4))
+                        drop-shadow(0 0 20px rgba(252, 228, 168, 0.2));
+                }
+                50% {
+                    filter: drop-shadow(0 0 14px rgba(252, 228, 168, 0.6))
+                        drop-shadow(0 0 30px rgba(252, 228, 168, 0.3));
+                }
+            }
+            .char-grid {
+                display: grid;
+                gap: 1px;
+            }
+            .char-grid > div {
+                width: 7px;
+                height: 7px;
+                border-radius: 2px;
+            }
+            .char-fallback {
+                color: inherit;
+                font-size: 1.5rem;
+                font-family: "Courier New", monospace;
+                font-weight: bold;
+                line-height: 1;
+            }
+            #game-area {
+                display: flex;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            #canvas-wrap {
+                position: relative;
+            }
+            #cv {
+                display: block;
+                border-radius: 4px;
+            }
+            .overlay {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: rgba(10, 10, 10, 0.78);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+                z-index: 10;
+                border-radius: 4px;
+            }
+            .bonus-text {
+                position: absolute;
+                top: 35%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 20;
+                pointer-events: none;
+                font-size: 1.2rem;
+                font-weight: bold;
+                font-family: "Courier New", monospace;
+                color: #fff;
+                white-space: nowrap;
+                text-shadow:
+                    0 0 3px #000,
+                    2px 2px 4px rgba(0, 0, 0, 0.9),
+                    -2px -2px 4px rgba(0, 0, 0, 0.9),
+                    0 0 18px rgba(252, 228, 168, 0.7),
+                    0 0 40px rgba(252, 228, 168, 0.35);
+            }
+            .play-btn {
+                padding: 10px 28px;
+                background: linear-gradient(135deg, #fce4a8, #b8e8c8);
+                color: #1a1a2e;
+                border: none;
+                font-family: "Courier New", monospace;
+                font-size: 1rem;
+                font-weight: bold;
+                cursor: pointer;
+                border-radius: 8px;
+                box-shadow: 0 2px 12px rgba(252, 228, 168, 0.3);
+                transition:
+                    transform 0.1s,
+                    box-shadow 0.2s;
+            }
+            .play-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 20px rgba(252, 228, 168, 0.5);
+            }
+            #right-col {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 110px;
+                max-width: 130px;
+            }
+            #right-col .btn-row {
+                display: flex;
+                gap: 6px;
+            }
+            #right-col .tbtn {
+                flex: 1;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 6px;
+                color: #888;
+                font-family: inherit;
+                font-size: 0.6rem;
+                font-weight: bold;
+                letter-spacing: 0.08em;
+                padding: 6px 0;
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+                text-align: center;
+            }
+            #right-col .tbtn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #ccc;
+            }
+            #right-col .tbtn.sound-on {
+                background: rgba(252, 228, 168, 0.08);
+                border-color: rgba(252, 228, 168, 0.2);
+                color: #fce4a8;
+            }
+            #right-col .tbtn.sound-off {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.1);
+                color: #666;
+            }
+            #score-box {
+                background: rgba(20, 20, 30, 0.75);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 6px;
+                padding: 8px 10px;
+            }
+            #score-box .label {
+                font-size: 0.6rem;
+                color: #888;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                margin-bottom: 2px;
+            }
+            #score-box .val {
+                font-size: 1.1rem;
+                font-weight: bold;
+                color: #fff;
+                font-variant-numeric: tabular-nums;
+            }
+            .lb-wrap {
+                width: 85%;
+                max-width: 280px;
+                margin-bottom: 12px;
+            }
+            .lb-title {
+                font-size: 0.7rem;
+                color: #fce4a8;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                text-align: center;
+                margin-bottom: 6px;
+                font-family: "Courier New", monospace;
+            }
+            .lb-empty {
+                color: #555;
+                font-size: 0.65rem;
+                text-align: center;
+                padding: 8px 0;
+                font-family: "Courier New", monospace;
+            }
+            .lb-row {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                margin-bottom: 2px;
+                font-size: 0.7rem;
+                padding: 2px 5px;
+                border-radius: 3px;
+                font-family: "Courier New", monospace;
+            }
+            .lb-row.even {
+                background: rgba(255, 255, 255, 0.03);
+            }
+            .lb-row.hi {
+                color: #fff;
+                font-weight: bold;
+            }
+            .lb-row:not(.hi) {
+                color: #ccc;
+            }
+            .lb-row .rank {
+                min-width: 16px;
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+            }
+            .lb-row .sc {
+                font-variant-numeric: tabular-nums;
+            }
+            .lb-row .dt {
+                color: #555;
+                font-size: 0.5rem;
+                margin-left: auto;
+            }
+            .go-title {
+                font-size: 1.3rem;
+                margin-bottom: 6px;
+                color: #f0a8b8;
+                font-family: inherit;
+            }
+            .go-score {
+                font-size: 1rem;
+                margin-bottom: 6px;
+                color: #ccc;
+                font-family: inherit;
+            }
+            svg {
+                display: inline-block;
+                vertical-align: middle;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="title-row"></div>
+        <div id="game-area">
+            <div id="canvas-wrap">
+                <canvas id="cv"></canvas>
+                <div
+                    id="bonus-el"
+                    class="bonus-text"
+                    style="display: none"
+                ></div>
+                <div id="start-overlay" class="overlay">
+                    <div id="start-lb" class="lb-wrap"></div>
+                    <button class="play-btn" id="start-btn"></button>
+                </div>
+                <div
+                    id="gameover-overlay"
+                    class="overlay"
+                    style="display: none"
+                >
+                    <div class="go-title" id="go-title"></div>
+                    <div class="go-score" id="go-score"></div>
+                    <div id="go-lb" class="lb-wrap"></div>
+                    <button class="play-btn" id="go-btn"></button>
+                </div>
+            </div>
+            <div id="right-col">
+                <div class="btn-row">
+                    <button class="tbtn" id="lang-btn"></button>
+                    <button class="tbtn" id="sound-btn"></button>
+                </div>
+                <div id="score-box">
+                    <div class="label" id="score-label"></div>
+                    <div class="val" id="score-val">0</div>
+                </div>
+            </div>
+        </div>
+        <script>
+            // ═══════════════════════════════════════════════════
+            // CONSTANTS
+            // ═══════════════════════════════════════════════════
+            var COLS = 8,
+                ROWS = 14,
+                CELL = 34,
+                GAP = 2;
+            var CELL_FULL = CELL + GAP;
+            var BW = COLS * CELL_FULL + GAP;
+            var BH = ROWS * CELL_FULL + GAP;
+            var LAUNCHER_H = 56;
+            var CANVAS_W = BW;
+            var CANVAS_H = BH + LAUNCHER_H;
+            var NUM_COLORS = 5;
+            var INIT_ROWS = 4;
+            var LB_KEY = "cubefall_lb";
+            var LB_MAX = 10;
+            var LANG_KEY = "cubefall_lang";
+            var SOUND_KEY = "cubefall_sound";
+            var DESCEND_INTERVAL = 4;
+            var SHOOT_SPEED = 650;
+
+            var COLORS = [
+                {
+                    base: "#a8d8ea",
+                    light: "#d0eef8",
+                    mid: "#88c8dc",
+                    dark: "#68a8bc",
+                    glow: [168, 216, 234],
+                },
+                {
+                    base: "#fce4a8",
+                    light: "#fef0cc",
+                    mid: "#f0d080",
+                    dark: "#d4b058",
+                    glow: [252, 228, 168],
+                },
+                {
+                    base: "#d4b8e8",
+                    light: "#e8d4f4",
+                    mid: "#b898d0",
+                    dark: "#9878b0",
+                    glow: [212, 184, 232],
+                },
+                {
+                    base: "#b8e8c8",
+                    light: "#d4f4e0",
+                    mid: "#90d0a8",
+                    dark: "#70b088",
+                    glow: [184, 232, 200],
+                },
+                {
+                    base: "#f0b8c0",
+                    light: "#f8d4d8",
+                    mid: "#e09098",
+                    dark: "#c87078",
+                    glow: [240, 184, 192],
+                },
+            ];
+
+            // ═══════════════════════════════════════════════════
+            // PIXEL MAPS
+            // ═══════════════════════════════════════════════════
+            var PM = {
+                К: [
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 1, 0],
+                    [1, 1, 1, 0, 0],
+                    [1, 0, 0, 1, 0],
+                    [1, 0, 0, 0, 1],
+                ],
+                У: [
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 0, 1, 0],
+                    [0, 0, 1, 0, 0],
+                    [0, 0, 1, 0, 0],
+                    [0, 1, 0, 0, 0],
+                ],
+                Б: [
+                    [0, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 1, 1, 0, 0],
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0],
+                ],
+                О: [
+                    [0, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0],
+                ],
+                П: [
+                    [1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                ],
+                А: [
+                    [0, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                ],
+                Д: [
+                    [0, 1, 1, 1, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 1, 0, 1, 0],
+                    [1, 1, 1, 1, 1],
+                ],
+                C: [
+                    [0, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0],
+                ],
+                U: [
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0],
+                ],
+                B: [
+                    [1, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 1, 1, 1, 0],
+                ],
+                E: [
+                    [1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1],
+                ],
+                F: [
+                    [1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                ],
+                A: [
+                    [0, 1, 1, 1, 0],
+                    [1, 0, 0, 0, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1],
+                ],
+                L: [
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1],
+                ],
+            };
+
+            var TITLE_RU = [
+                { ch: "К" },
+                { ch: "У" },
+                { ch: "Б" },
+                { ch: "О" },
+                { ch: "П" },
+                { ch: "А" },
+                { ch: "Д" },
+            ];
+            var TITLE_EN = [
+                { ch: "C" },
+                { ch: "U" },
+                { ch: "B" },
+                { ch: "E" },
+                { ch: "F" },
+                { ch: "A" },
+                { ch: "L" },
+                { ch: "L" },
+            ];
+            var TITLE_COLORS_LIST = [
+                COLORS[0],
+                COLORS[1],
+                COLORS[2],
+                COLORS[3],
+                COLORS[4],
+                COLORS[0],
+                COLORS[1],
+            ];
+
+            // ═══════════════════════════════════════════════════
+            // LOCALIZATION
+            // ═══════════════════════════════════════════════════
+            var LOC = {
+                play: { ru: "ИГРАТЬ", en: "PLAY" },
+                restart: { ru: "ЗАНОВО", en: "AGAIN" },
+                gameOver: { ru: "КОНЕЦ ИГРЫ", en: "GAME OVER" },
+                score: { ru: "Счёт", en: "Score" },
+                leaderboard: { ru: "Топ-10", en: "Top-10" },
+                noRecords: { ru: "Пока нет рекордов", en: "No records yet" },
+                fallBonus: { ru: "ОБРЫВ! +", en: "DROP! +" },
+                freeShot: { ru: " БЕСПЛАТНЫЙ ХОД!", en: " FREE SHOT!" },
+                fullCol: { ru: "СТОЛБЕЦ ПОЛОН", en: "COLUMN FULL" },
+            };
+
+            function l(k) {
+                return (
+                    (LOC[k] && LOC[k][state.lang]) || (LOC[k] && LOC[k].ru) || k
+                );
+            }
+
+            // ═══════════════════════════════════════════════════
+            // GAME LOGIC HELPERS
+            // ═══════════════════════════════════════════════════
+            function randomColor() {
+                return Math.floor(Math.random() * NUM_COLORS);
+            }
+
+            function randomColorFromField(grid, excludeColor) {
+                var colorSet = new Set();
+                for (var r = 0; r < ROWS; r++)
+                    for (var c = 0; c < COLS; c++)
+                        if (grid[r][c] >= 0) colorSet.add(grid[r][c]);
+                if (colorSet.size === 0) return randomColor();
+                if (
+                    excludeColor !== undefined &&
+                    colorSet.has(excludeColor) &&
+                    colorSet.size > 1
+                )
+                    colorSet.delete(excludeColor);
+                var arr = Array.from(colorSet);
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function createGrid(fillRows) {
+                var grid = [];
+                for (var r = 0; r < ROWS; r++) {
+                    grid[r] = [];
+                    for (var c = 0; c < COLS; c++) {
+                        if (r < fillRows) {
+                            var forbidden = new Set();
+                            if (c >= 2 && grid[r][c - 1] === grid[r][c - 2])
+                                forbidden.add(grid[r][c - 1]);
+                            if (r >= 2 && grid[r - 1][c] === grid[r - 2][c])
+                                forbidden.add(grid[r - 1][c]);
+                            var color = randomColor(),
+                                attempts = 0;
+                            while (forbidden.has(color) && attempts < 30) {
+                                color = randomColor();
+                                attempts++;
+                            }
+                            grid[r][c] = color;
+                        } else {
+                            grid[r][c] = -1;
+                        }
+                    }
+                }
+                return grid;
+            }
+
+            function addTopRow(grid) {
+                for (var r = ROWS - 1; r >= 1; r--)
+                    for (var c = 0; c < COLS; c++) grid[r][c] = grid[r - 1][c];
+                for (var c = 0; c < COLS; c++) {
+                    var forbidden = new Set();
+                    if (
+                        c >= 2 &&
+                        grid[0][c - 1] !== -1 &&
+                        grid[0][c - 1] === grid[0][c - 2]
+                    )
+                        forbidden.add(grid[0][c - 1]);
+                    var color = randomColor(),
+                        attempts = 0;
+                    while (forbidden.has(color) && attempts < 20) {
+                        color = randomColor();
+                        attempts++;
+                    }
+                    grid[0][c] = color;
+                }
+                return grid;
+            }
+
+            function calculateTrajectory(grid, targetX, targetY) {
+                var launchX = BW / 2,
+                    launchY = BH + LAUNCHER_H / 2;
+                var dx = targetX - launchX,
+                    dy = targetY - launchY;
+                var len = Math.sqrt(dx * dx + dy * dy);
+                if (len < 1) return null;
+                dx /= len;
+                dy /= len;
+                if (dy >= 0) return null;
+                var maxSlope = 4.0;
+                if (Math.abs(dx / dy) > maxSlope) {
+                    dx = Math.sign(dx) * -dy * maxSlope;
+                    var nl = Math.sqrt(dx * dx + dy * dy);
+                    dx /= nl;
+                    dy /= nl;
+                }
+                var leftB = GAP + CELL / 2,
+                    rightB = BW - GAP - CELL / 2;
+                var path = [{ x: launchX, y: launchY }];
+                var x = launchX,
+                    y = launchY,
+                    prevRow = -1,
+                    prevCol = -1,
+                    step = 1.5;
+                for (var i = 0; i < 2000; i++) {
+                    x += dx * step;
+                    y += dy * step;
+                    if (x < leftB) {
+                        var t = (leftB - (x - dx * step)) / (dx * step);
+                        var by = y - dy * step + dy * step * t;
+                        path.push({ x: leftB, y: by });
+                        x = leftB + (leftB - x);
+                        dx = -dx;
+                    } else if (x > rightB) {
+                        var t = (rightB - (x - dx * step)) / (dx * step);
+                        var by = y - dy * step + dy * step * t;
+                        path.push({ x: rightB, y: by });
+                        x = rightB - (x - rightB);
+                        dx = -dx;
+                    }
+                    if (y >= 0 && y < BH) {
+                        var gc = Math.floor((x - GAP) / CELL_FULL);
+                        var gr = Math.floor((y - GAP) / CELL_FULL);
+                        if (gc >= 0 && gc < COLS && gr >= 0 && gr < ROWS) {
+                            if (grid[gr][gc] !== -1) {
+                                path.push({ x: x, y: y });
+                                if (
+                                    prevRow >= 0 &&
+                                    prevCol >= 0 &&
+                                    prevRow < ROWS &&
+                                    prevCol < COLS &&
+                                    grid[prevRow][prevCol] === -1
+                                )
+                                    return {
+                                        landRow: prevRow,
+                                        landCol: prevCol,
+                                        path: path,
+                                    };
+                                return null;
+                            }
+                            prevRow = gr;
+                            prevCol = gc;
+                        }
+                    }
+                    if (y < GAP) {
+                        var gc2 = Math.max(
+                            0,
+                            Math.min(
+                                COLS - 1,
+                                Math.floor((x - GAP) / CELL_FULL),
+                            ),
+                        );
+                        path.push({ x: x, y: 0 });
+                        if (grid[0][gc2] === -1)
+                            return { landRow: 0, landCol: gc2, path: path };
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            function findGroupAt(grid, row, col) {
+                if (row < 0 || row >= ROWS || col < 0 || col >= COLS)
+                    return new Set();
+                var color = grid[row][col];
+                if (color === -1) return new Set();
+                var visited = [];
+                for (var i = 0; i < ROWS; i++) {
+                    visited[i] = [];
+                    for (var j = 0; j < COLS; j++) visited[i][j] = false;
+                }
+                var group = new Set();
+                var queue = [[row, col]];
+                visited[row][col] = true;
+                var dirs = [
+                    [0, 1],
+                    [0, -1],
+                    [1, 0],
+                    [-1, 0],
+                ];
+                while (queue.length > 0) {
+                    var cur = queue.shift();
+                    var cr = cur[0],
+                        cc = cur[1];
+                    group.add(cr + "," + cc);
+                    for (var d = 0; d < dirs.length; d++) {
+                        var nr = cr + dirs[d][0],
+                            nc = cc + dirs[d][1];
+                        if (
+                            nr >= 0 &&
+                            nr < ROWS &&
+                            nc >= 0 &&
+                            nc < COLS &&
+                            !visited[nr][nc] &&
+                            grid[nr][nc] === color
+                        ) {
+                            visited[nr][nc] = true;
+                            queue.push([nr, nc]);
+                        }
+                    }
+                }
+                return group;
+            }
+
+            function getConnectedToCeiling(grid) {
+                var connected = [];
+                for (var i = 0; i < ROWS; i++) {
+                    connected[i] = [];
+                    for (var j = 0; j < COLS; j++) connected[i][j] = false;
+                }
+                var queue = [];
+                for (var c = 0; c < COLS; c++) {
+                    if (grid[0][c] !== -1) {
+                        connected[0][c] = true;
+                        queue.push([0, c]);
+                    }
+                }
+                var dirs = [
+                    [0, 1],
+                    [0, -1],
+                    [1, 0],
+                    [-1, 0],
+                ];
+                while (queue.length > 0) {
+                    var cur = queue.shift();
+                    var r = cur[0],
+                        c = cur[1];
+                    for (var d = 0; d < dirs.length; d++) {
+                        var nr = r + dirs[d][0],
+                            nc = c + dirs[d][1];
+                        if (
+                            nr >= 0 &&
+                            nr < ROWS &&
+                            nc >= 0 &&
+                            nc < COLS &&
+                            !connected[nr][nc] &&
+                            grid[nr][nc] !== -1
+                        ) {
+                            connected[nr][nc] = true;
+                            queue.push([nr, nc]);
+                        }
+                    }
+                }
+                return connected;
+            }
+
+            function findDisconnected(grid) {
+                var connected = getConnectedToCeiling(grid);
+                var disconnected = new Set();
+                for (var r = 0; r < ROWS; r++)
+                    for (var c = 0; c < COLS; c++)
+                        if (grid[r][c] !== -1 && !connected[r][c])
+                            disconnected.add(r + "," + c);
+                return disconnected;
+            }
+
+            function isGameOver(grid) {
+                for (var c = 0; c < COLS; c++)
+                    if (grid[ROWS - 1][c] !== -1) return true;
+                return false;
+            }
+
+            // ═══════════════════════════════════════════════════
+            // LEADERBOARD
+            // ═══════════════════════════════════════════════════
+            function loadLB() {
+                try {
+                    var d = localStorage.getItem(LB_KEY);
+                    if (d) return JSON.parse(d).slice(0, LB_MAX);
+                } catch (e) {}
+                return [];
+            }
+            function saveLB(lb) {
+                try {
+                    localStorage.setItem(LB_KEY, JSON.stringify(lb));
+                } catch (e) {}
+            }
+            function addLBScore(sc, lang) {
+                var lb = loadLB();
+                var entry = {
+                    score: sc,
+                    date: new Date().toLocaleDateString(
+                        lang === "ru" ? "ru-RU" : "en-US",
+                    ),
+                };
+                lb.push(entry);
+                lb.sort(function (a, b) {
+                    return b.score - a.score;
+                });
+                if (lb.length > LB_MAX) lb.length = LB_MAX;
+                saveLB(lb);
+                return { lb: lb, hi: lb.indexOf(entry) };
+            }
+
+            // ═══════════════════════════════════════════════════
+            // CANVAS DRAWING
+            // ═══════════════════════════════════════════════════
+            function rrect(ctx, x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+            }
+
+            function drawCube(ctx, px, py, ci, sz, sel, alpha) {
+                var co = COLORS[ci],
+                    r = 4;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                var g = ctx.createLinearGradient(px, py, px, py + sz);
+                g.addColorStop(0, co.light);
+                g.addColorStop(0.35, co.base);
+                g.addColorStop(0.7, co.mid);
+                g.addColorStop(1, co.dark);
+                ctx.fillStyle = g;
+                rrect(ctx, px + 0.5, py + 0.5, sz - 1, sz - 1, r);
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,255,0.25)";
+                ctx.lineWidth = 1;
+                rrect(ctx, px + 1.5, py + 1.5, sz - 3, sz - 3, r - 0.5);
+                ctx.stroke();
+                var sh = sz * 0.38;
+                ctx.globalAlpha = 0.45 * alpha;
+                var sg = ctx.createLinearGradient(px, py, px, py + sh);
+                sg.addColorStop(0, "rgba(255,255,255,0.7)");
+                sg.addColorStop(1, "rgba(255,255,255,0)");
+                ctx.fillStyle = sg;
+                ctx.beginPath();
+                ctx.rect(px + 2, py + 2, sz - 4, sh);
+                ctx.fill();
+                ctx.globalAlpha = 0.6 * alpha;
+                ctx.fillStyle = "#fff";
+                ctx.beginPath();
+                ctx.ellipse(
+                    px + sz * 0.28,
+                    py + sz * 0.22,
+                    sz * 0.08,
+                    sz * 0.05,
+                    -0.3,
+                    0,
+                    Math.PI * 2,
+                );
+                ctx.fill();
+                ctx.globalAlpha = 0.15 * alpha;
+                var bg = ctx.createLinearGradient(
+                    px,
+                    py + sz * 0.65,
+                    px,
+                    py + sz,
+                );
+                bg.addColorStop(0, "rgba(0,0,0,0)");
+                bg.addColorStop(1, "rgba(0,0,0,0.5)");
+                ctx.fillStyle = bg;
+                ctx.beginPath();
+                ctx.rect(px + 2, py + sz * 0.65, sz - 4, sz * 0.33);
+                ctx.fill();
+                if (sel) {
+                    ctx.globalAlpha = 0.4 * alpha;
+                    ctx.fillStyle = "#fff";
+                    rrect(ctx, px + 0.5, py + 0.5, sz - 1, sz - 1, r);
+                    ctx.fill();
+                    ctx.globalAlpha = 0.9 * alpha;
+                    ctx.strokeStyle = "#fff";
+                    ctx.lineWidth = 2;
+                    rrect(ctx, px + 1, py + 1, sz - 2, sz - 2, r);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            // ═══════════════════════════════════════════════════
+            // GAME STATE
+            // ═══════════════════════════════════════════════════
+            var state = {
+                lang: (function () {
+                    try {
+                        var s = localStorage.getItem(LANG_KEY);
+                        if (s === "en" || s === "ru") return s;
+                    } catch (e) {}
+                    return "ru";
+                })(),
+                overlay: "start",
+                uiHi: -1,
+                uiLB: loadLB(),
+                bonusText: "",
+                soundOn: (function () {
+                    try {
+                        if (localStorage.getItem(SOUND_KEY) === "off")
+                            return false;
+                    } catch (e) {}
+                    return true;
+                })(),
+                isActive: false,
+            };
+
+            var grid = createGrid(INIT_ROWS);
+            var phase = { type: "idle" };
+            var particles = [];
+            var active = false;
+            var score = 0;
+            var shotCount = 0;
+            var currentColor = randomColor();
+            var nextColor = randomColor();
+            var mousePos = null;
+            var trajPreview = null;
+            var lastLandRow = -1;
+            var lastLandCol = -1;
+            var disconnectReward = false;
+            var bonusTimeout = null;
+            var swapAnim = 0;
+
+            // Sound
+            var audioCtx = null;
+
+            function initAudio() {
+                if (!audioCtx && state.soundOn) {
+                    try {
+                        audioCtx = new (
+                            window.AudioContext || window.webkitAudioContext
+                        )();
+                    } catch (e) {
+                        state.soundOn = false;
+                    }
+                }
+                if (audioCtx && audioCtx.state === "suspended")
+                    audioCtx.resume().catch(function () {});
+            }
+
+            function playTone(freq, duration, volume, type) {
+                if (!state.soundOn) return;
+                if (!audioCtx) return;
+                try {
+                    var osc = audioCtx.createOscillator(),
+                        gain = audioCtx.createGain();
+                    osc.type = type || "sine";
+                    osc.frequency.value = freq;
+                    var v = Math.min(volume, 0.3);
+                    gain.gain.setValueAtTime(v, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        audioCtx.currentTime + duration,
+                    );
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            var sfx = {
+                shoot: function () {
+                    playTone(300, 0.06, 0.06, "sine");
+                    setTimeout(function () {
+                        playTone(500, 0.08, 0.08, "sine");
+                    }, 30);
+                },
+                land: function () {
+                    playTone(200, 0.1, 0.08, "triangle");
+                },
+                match: function (n) {
+                    var base = 523 + Math.min(n, 15) * 30;
+                    playTone(base, 0.2, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(base * 1.25, 0.15, 0.08, "sine");
+                    }, 50);
+                    if (n >= 5)
+                        setTimeout(function () {
+                            playTone(base * 1.5, 0.12, 0.06, "sine");
+                        }, 100);
+                },
+                fall: function (n) {
+                    var base = 180 + Math.min(n, 8) * 15;
+                    playTone(base, 0.15, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(base * 0.8, 0.18, 0.08, "sine");
+                    }, 70);
+                    setTimeout(function () {
+                        playTone(base * 0.6, 0.22, 0.06, "sine");
+                    }, 150);
+                    if (n >= 4)
+                        setTimeout(function () {
+                            playTone(base * 0.5, 0.25, 0.04, "sine");
+                        }, 230);
+                },
+                descend: function () {
+                    playTone(250, 0.08, 0.04, "sine");
+                },
+                gameOver: function () {
+                    playTone(440, 0.3, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(370, 0.3, 0.08, "sine");
+                    }, 200);
+                    setTimeout(function () {
+                        playTone(330, 0.5, 0.06, "sine");
+                    }, 400);
+                },
+                start: function () {
+                    playTone(523, 0.15, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(659, 0.15, 0.1, "sine");
+                    }, 100);
+                    setTimeout(function () {
+                        playTone(784, 0.2, 0.12, "sine");
+                    }, 200);
+                },
+                fullCol: function () {
+                    playTone(200, 0.1, 0.06, "sine");
+                    setTimeout(function () {
+                        playTone(180, 0.15, 0.05, "sine");
+                    }, 60);
+                },
+                ricochet: function () {
+                    playTone(800, 0.05, 0.06, "square");
+                    setTimeout(function () {
+                        playTone(600, 0.04, 0.04, "square");
+                    }, 30);
+                },
+                swap: function () {
+                    playTone(440, 0.06, 0.08, "sine");
+                    setTimeout(function () {
+                        playTone(550, 0.06, 0.06, "sine");
+                    }, 40);
+                },
+            };
+
+            // ═══════════════════════════════════════════════════
+            // PARTICLES & BONUS
+            // ═══════════════════════════════════════════════════
+            function spawnParticles(r, c, ci) {
+                var cx = GAP + c * CELL_FULL + CELL / 2,
+                    cy = GAP + r * CELL_FULL + CELL / 2;
+                for (var i = 0; i < 6; i++) {
+                    var a = Math.random() * Math.PI * 2,
+                        sp = 30 + Math.random() * 80;
+                    particles.push({
+                        x: cx,
+                        y: cy,
+                        vx: Math.cos(a) * sp,
+                        vy: Math.sin(a) * sp,
+                        life: 1,
+                        ml: 0.3 + Math.random() * 0.4,
+                        c: COLORS[ci].glow,
+                        s: 2 + Math.random() * 2.5,
+                    });
+                }
+            }
+
+            function showBonus(txt, dur) {
+                state.bonusText = txt;
+                var el = document.getElementById("bonus-el");
+                el.textContent = txt;
+                el.style.display = "block";
+                if (bonusTimeout) clearTimeout(bonusTimeout);
+                bonusTimeout = setTimeout(function () {
+                    state.bonusText = "";
+                    el.style.display = "none";
+                }, dur || 1200);
+            }
+
+            // ═══════════════════════════════════════════════════
+            // GAME STEP FUNCTIONS
+            // ═══════════════════════════════════════════════════
+            function afterResolve() {
+                var g = grid;
+                if (disconnectReward) {
+                    disconnectReward = false;
+                    phase = { type: "idle" };
+                    return;
+                }
+                shotCount++;
+                if (shotCount % DESCEND_INTERVAL === 0) {
+                    for (var c = 0; c < COLS; c++) {
+                        if (g[ROWS - 1][c] !== -1) {
+                            active = false;
+                            state.isActive = false;
+                            var res = addLBScore(score, state.lang);
+                            state.uiLB = res.lb;
+                            state.uiHi = res.hi;
+                            sfx.gameOver();
+                            showOverlay("gameover");
+                            phase = { type: "idle" };
+                            return;
+                        }
+                    }
+                    sfx.descend();
+                    phase = {
+                        type: "descending",
+                        t0: performance.now(),
+                        dur: 300,
+                    };
+                    return;
+                }
+                if (isGameOver(g)) {
+                    active = false;
+                    state.isActive = false;
+                    var res = addLBScore(score, state.lang);
+                    state.uiLB = res.lb;
+                    state.uiHi = res.hi;
+                    sfx.gameOver();
+                    showOverlay("gameover");
+                }
+                phase = { type: "idle" };
+            }
+
+            function processMatches() {
+                var g = grid;
+                var group = findGroupAt(g, lastLandRow, lastLandCol);
+                if (group.size >= 3) {
+                    var totalRemoved = group.size;
+                    var pts = totalRemoved * 10;
+                    if (totalRemoved >= 7) pts = totalRemoved * 25;
+                    else if (totalRemoved >= 5) pts = totalRemoved * 18;
+                    else if (totalRemoved >= 4) pts = totalRemoved * 14;
+                    score += pts;
+                    updateScore();
+                    if (totalRemoved >= 5) showBonus("+" + pts);
+                    sfx.match(totalRemoved);
+                    group.forEach(function (key) {
+                        var parts = key.split(",");
+                        var r = +parts[0],
+                            c = +parts[1];
+                        spawnParticles(r, c, g[r][c]);
+                    });
+                    phase = {
+                        type: "removing",
+                        cells: group,
+                        t0: performance.now(),
+                        dur: 280,
+                    };
+                    return;
+                }
+                var disconnected = findDisconnected(g);
+                if (disconnected.size > 0) {
+                    disconnectReward = true;
+                    var pts = disconnected.size * 15;
+                    score += pts;
+                    updateScore();
+                    showBonus(l("fallBonus") + pts + l("freeShot"));
+                    sfx.fall(disconnected.size);
+                    disconnected.forEach(function (key) {
+                        var parts = key.split(",");
+                        var r = +parts[0],
+                            c = +parts[1];
+                        spawnParticles(r, c, g[r][c]);
+                    });
+                    phase = {
+                        type: "disconnect",
+                        cells: new Set(disconnected),
+                        t0: performance.now(),
+                        dur: 300,
+                    };
+                    return;
+                }
+                afterResolve();
+            }
+
+            function afterRemove() {
+                var ph = phase;
+                var g = grid;
+                ph.cells.forEach(function (key) {
+                    var parts = key.split(",");
+                    g[+parts[0]][+parts[1]] = -1;
+                });
+                var disconnected = findDisconnected(g);
+                if (disconnected.size > 0) {
+                    disconnectReward = true;
+                    var pts = disconnected.size * 15;
+                    score += pts;
+                    updateScore();
+                    showBonus(l("fallBonus") + pts + l("freeShot"), 1800);
+                    sfx.fall(disconnected.size);
+                    disconnected.forEach(function (key) {
+                        var parts = key.split(",");
+                        var r = +parts[0],
+                            c = +parts[1];
+                        spawnParticles(r, c, g[r][c]);
+                    });
+                    phase = {
+                        type: "disconnect",
+                        cells: new Set(disconnected),
+                        t0: performance.now(),
+                        dur: 300,
+                    };
+                    return;
+                }
+                afterResolve();
+            }
+
+            function afterDisconnect() {
+                var ph = phase;
+                var g = grid;
+                ph.cells.forEach(function (key) {
+                    var parts = key.split(",");
+                    g[+parts[0]][+parts[1]] = -1;
+                });
+                afterResolve();
+            }
+
+            function afterDescend() {
+                var g = grid;
+                addTopRow(g);
+                if (isGameOver(g)) {
+                    active = false;
+                    state.isActive = false;
+                    var res = addLBScore(score, state.lang);
+                    state.uiLB = res.lb;
+                    state.uiHi = res.hi;
+                    sfx.gameOver();
+                    showOverlay("gameover");
+                }
+                phase = { type: "idle" };
+            }
+
+            function afterShoot() {
+                var ph = phase;
+                var g = grid;
+                g[ph.landRow][ph.landCol] = ph.color;
+                lastLandRow = ph.landRow;
+                lastLandCol = ph.landCol;
+                sfx.land();
+                processMatches();
+            }
+
+            // ═══════════════════════════════════════════════════
+            // UI HELPERS
+            // ═══════════════════════════════════════════════════
+            function updateScore() {
+                document.getElementById("score-val").textContent = score;
+            }
+
+            function renderLB(lb, hi, containerId) {
+                var el = document.getElementById(containerId);
+                var html =
+                    '<div class="lb-title">' + l("leaderboard") + "</div>";
+                if (lb.length === 0) {
+                    html +=
+                        '<div class="lb-empty">' + l("noRecords") + "</div>";
+                } else {
+                    for (var i = 0; i < lb.length; i++) {
+                        var cls = "lb-row";
+                        if (i % 2 === 0) cls += " even";
+                        if (i === hi) cls += " hi";
+                        html +=
+                            '<div class="' +
+                            cls +
+                            '"><span class="rank">' +
+                            (i + 1) +
+                            '</span><span class="sc">' +
+                            lb[i].score +
+                            '</span><span class="dt">' +
+                            lb[i].date +
+                            "</span></div>";
+                    }
+                }
+                el.innerHTML = html;
+            }
+
+            function showOverlay(type) {
+                state.overlay = type;
+                document.getElementById("start-overlay").style.display = "none";
+                document.getElementById("gameover-overlay").style.display =
+                    "none";
+                if (cv) cv.style.cursor = "default";
+                if (type === "start") {
+                    document.getElementById("start-overlay").style.display =
+                        "flex";
+                    document.getElementById("start-btn").textContent =
+                        l("play");
+                    renderLB(state.uiLB, -1, "start-lb");
+                } else if (type === "gameover") {
+                    document.getElementById("gameover-overlay").style.display =
+                        "flex";
+                    document.getElementById("go-title").textContent =
+                        l("gameOver");
+                    document.getElementById("go-score").textContent =
+                        l("score") + ": " + score;
+                    document.getElementById("go-btn").textContent =
+                        l("restart");
+                    renderLB(state.uiLB, state.uiHi, "go-lb");
+                }
+            }
+
+            function hideOverlays() {
+                state.overlay = "none";
+                document.getElementById("start-overlay").style.display = "none";
+                document.getElementById("gameover-overlay").style.display =
+                    "none";
+            }
+
+            function buildTitle() {
+                var chars = state.lang === "ru" ? TITLE_RU : TITLE_EN;
+                var container = document.getElementById("title-row");
+                container.innerHTML = "";
+                var ci = 0;
+                for (var i = 0; i < chars.length; i++) {
+                    var tc = chars[i];
+                    var map = PM[tc.ch];
+                    var co = TITLE_COLORS_LIST[ci % TITLE_COLORS_LIST.length];
+                    ci++;
+                    if (!map) {
+                        var span = document.createElement("span");
+                        span.className = "char-fallback";
+                        span.style.color = co.base;
+                        span.textContent = tc.ch;
+                        container.appendChild(span);
+                        continue;
+                    }
+                    var cols = map[0].length;
+                    var div = document.createElement("div");
+                    div.className = "char-grid";
+                    div.style.gridTemplateColumns = "repeat(" + cols + ",7px)";
+                    for (var ri = 0; ri < map.length; ri++) {
+                        for (var cci = 0; cci < cols; cci++) {
+                            var on = map[ri][cci];
+                            var cell = document.createElement("div");
+                            if (on) {
+                                cell.style.background =
+                                    "linear-gradient(180deg," +
+                                    co.light +
+                                    " 0%," +
+                                    co.base +
+                                    " 35%," +
+                                    co.mid +
+                                    " 70%," +
+                                    co.dark +
+                                    " 100%)";
+                                cell.style.boxShadow =
+                                    "inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.25)";
+                            } else {
+                                cell.style.background = "transparent";
+                            }
+                            div.appendChild(cell);
+                        }
+                    }
+                    container.appendChild(div);
+                }
+            }
+
+            function updateLangBtn() {
+                document.getElementById("lang-btn").textContent =
+                    state.lang === "ru" ? "EN" : "RU";
+            }
+
+            function updateSoundBtn() {
+                var btn = document.getElementById("sound-btn");
+                if (state.soundOn) {
+                    btn.className = "tbtn sound-on";
+                    btn.innerHTML =
+                        '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>';
+                } else {
+                    btn.className = "tbtn sound-off";
+                    btn.innerHTML =
+                        '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></span>';
+                }
+            }
+
+            // ═══════════════════════════════════════════════════
+            // START GAME
+            // ═══════════════════════════════════════════════════
+            function startGame() {
+                grid = createGrid(INIT_ROWS);
+                phase = { type: "idle" };
+                particles = [];
+                score = 0;
+                shotCount = 0;
+                currentColor = randomColorFromField(grid);
+                nextColor = randomColorFromField(grid, currentColor);
+                disconnectReward = false;
+                if (bonusTimeout) {
+                    clearTimeout(bonusTimeout);
+                    bonusTimeout = null;
+                }
+                state.bonusText = "";
+                document.getElementById("bonus-el").style.display = "none";
+                updateScore();
+                hideOverlays();
+                active = true;
+                state.isActive = true;
+                cv.style.cursor = "crosshair";
+                initAudio();
+                sfx.start();
+            }
+
+            // ═══════════════════════════════════════════════════
+            // EVENT HANDLERS
+            // ═══════════════════════════════════════════════════
+            function handleCanvasClick(e) {
+                if (e.button === 2) return;
+                initAudio();
+                if (!active || phase.type !== "idle") return;
+                var rect = cv.getBoundingClientRect();
+                var sx = cv.width / rect.width,
+                    sy = cv.height / rect.height;
+                var mx = (e.clientX - rect.left) * sx,
+                    my = (e.clientY - rect.top) * sy;
+                if (my >= BH) return;
+                var result = calculateTrajectory(grid, mx, my);
+                if (!result) {
+                    sfx.fullCol();
+                    showBonus(l("fullCol"), 800);
+                    return;
+                }
+                var landRow = result.landRow,
+                    landCol = result.landCol,
+                    path = result.path;
+                var totalLen = 0;
+                for (var i = 1; i < path.length; i++) {
+                    var ddx = path[i].x - path[i - 1].x,
+                        ddy = path[i].y - path[i - 1].y;
+                    totalLen += Math.sqrt(ddx * ddx + ddy * ddy);
+                }
+                var color = currentColor;
+                phase = {
+                    type: "shooting",
+                    landRow: landRow,
+                    landCol: landCol,
+                    color: color,
+                    path: path,
+                    t0: performance.now(),
+                    dur: Math.max(150, (totalLen / SHOOT_SPEED) * 1000),
+                };
+                sfx.shoot();
+                if (path.length > 2) {
+                    var accLen = 0;
+                    for (var i = 1; i < path.length; i++) {
+                        var ddx = path[i].x - path[i - 1].x,
+                            ddy = path[i].y - path[i - 1].y;
+                        accLen += Math.sqrt(ddx * ddx + ddy * ddy);
+                        if (i < path.length - 1) {
+                            var bounceTime =
+                                (accLen / totalLen) *
+                                ((totalLen / SHOOT_SPEED) * 1000);
+                            (function (bt) {
+                                setTimeout(
+                                    function () {
+                                        sfx.ricochet();
+                                    },
+                                    Math.max(50, bt),
+                                );
+                            })(bounceTime);
+                        }
+                    }
+                }
+                trajPreview = null;
+                currentColor = nextColor;
+                nextColor = randomColorFromField(grid, currentColor);
+            }
+
+            function handleContextMenu(e) {
+                e.preventDefault();
+                initAudio();
+                if (!active || phase.type !== "idle") return;
+                var tmp = currentColor;
+                currentColor = nextColor;
+                nextColor = tmp;
+                swapAnim = performance.now();
+                sfx.swap();
+            }
+
+            function handleMouseMove(e) {
+                var rect = cv.getBoundingClientRect();
+                var sx = cv.width / rect.width,
+                    sy = cv.height / rect.height;
+                var mx = (e.clientX - rect.left) * sx,
+                    my = (e.clientY - rect.top) * sy;
+                mousePos = { x: mx, y: my };
+                if (active && phase.type === "idle" && my < BH) {
+                    trajPreview = calculateTrajectory(grid, mx, my);
+                } else {
+                    trajPreview = null;
+                }
+            }
+
+            function handleMouseLeave() {
+                mousePos = null;
+                trajPreview = null;
+            }
+
+            // ═══════════════════════════════════════════════════
+            // RENDER LOOP
+            // ═══════════════════════════════════════════════════
+            var cv, ctx, lastT;
+
+            function render(now) {
+                var dt = Math.min((now - lastT) / 1000, 0.05);
+                lastT = now;
+                var ph = phase;
+
+                // Phase transitions
+                if (ph.type === "shooting" && now - ph.t0 >= ph.dur)
+                    afterShoot();
+                else if (ph.type === "removing" && now - ph.t0 >= ph.dur)
+                    afterRemove();
+                else if (ph.type === "disconnect" && now - ph.t0 >= ph.dur)
+                    afterDisconnect();
+                else if (ph.type === "descending" && now - ph.t0 >= ph.dur)
+                    afterDescend();
+
+                // Update particles
+                var w = 0;
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.vy += 200 * dt;
+                    p.life -= dt / p.ml;
+                    if (p.life > 0) particles[w++] = p;
+                }
+                particles.length = w;
+
+                // ─── DRAW ───
+                ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+                // Grid background
+                ctx.fillStyle = "#0e0e14";
+                ctx.fillRect(0, 0, BW, BH);
+
+                // Grid lines
+                ctx.strokeStyle = "rgba(255,255,255,0.025)";
+                ctx.lineWidth = 1;
+                for (var r = 0; r <= ROWS; r++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, GAP / 2 + r * CELL_FULL);
+                    ctx.lineTo(BW, GAP / 2 + r * CELL_FULL);
+                    ctx.stroke();
+                }
+                for (var c = 0; c <= COLS; c++) {
+                    ctx.beginPath();
+                    ctx.moveTo(GAP / 2 + c * CELL_FULL, 0);
+                    ctx.lineTo(GAP / 2 + c * CELL_FULL, BH);
+                    ctx.stroke();
+                }
+
+                // Danger zone (bottom 3 rows)
+                var dangerStart = ROWS - 3;
+                for (var r = dangerStart; r < ROWS; r++) {
+                    var alpha = 0.02 + (r - dangerStart) * 0.02;
+                    ctx.fillStyle = "rgba(240,100,100," + alpha + ")";
+                    ctx.fillRect(0, GAP + r * CELL_FULL, BW, CELL);
+                }
+
+                // Trajectory preview (hover)
+                var preview = trajPreview;
+                if (preview && active && ph.type === "idle") {
+                    ctx.save();
+                    ctx.setLineDash([4, 6]);
+                    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(preview.path[0].x, preview.path[0].y);
+                    for (var i = 1; i < preview.path.length; i++)
+                        ctx.lineTo(preview.path[i].x, preview.path[i].y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.restore();
+                    // Landing ghost cube
+                    var gpx = GAP + preview.landCol * CELL_FULL;
+                    var gpy = GAP + preview.landRow * CELL_FULL;
+                    ctx.globalAlpha = 0.3;
+                    drawCube(ctx, gpx, gpy, currentColor, CELL, false, 0.3);
+                    ctx.globalAlpha = 1;
+                }
+
+                // Draw cubes
+                var g = grid;
+                var ease = function (t) {
+                    return t * (2 - t);
+                };
+
+                for (var r = 0; r < ROWS; r++) {
+                    for (var c = 0; c < COLS; c++) {
+                        var val = g[r][c];
+                        if (val === -1) continue;
+                        var px = GAP + c * CELL_FULL;
+                        var py = GAP + r * CELL_FULL;
+                        var alpha = 1,
+                            sz = CELL;
+
+                        // Removing animation
+                        if (
+                            ph.type === "removing" &&
+                            ph.cells.has(r + "," + c)
+                        ) {
+                            var prog = Math.min((now - ph.t0) / ph.dur, 1);
+                            alpha = 1 - prog;
+                            sz = CELL * (1 - prog * 0.3);
+                            var offset = (CELL - sz) / 2;
+                            px += offset;
+                            py += offset;
+                        }
+                        // Disconnect animation
+                        if (
+                            ph.type === "disconnect" &&
+                            ph.cells.has(r + "," + c)
+                        ) {
+                            var prog = Math.min((now - ph.t0) / ph.dur, 1);
+                            alpha = 1 - prog;
+                            py += prog * CELL_FULL * 2;
+                        }
+                        // Descending animation
+                        if (ph.type === "descending") {
+                            var prog = ease(
+                                Math.min((now - ph.t0) / ph.dur, 1),
+                            );
+                            py -= (1 - prog) * CELL_FULL;
+                        }
+                        drawCube(ctx, px, py, val, sz, false, alpha);
+                    }
+                }
+
+                // Draw shooting cube along trajectory path
+                if (ph.type === "shooting") {
+                    var prog = Math.min((now - ph.t0) / ph.dur, 1);
+                    var totalLen = 0;
+                    var segLens = [0];
+                    for (var i = 1; i < ph.path.length; i++) {
+                        var ddx = ph.path[i].x - ph.path[i - 1].x,
+                            ddy = ph.path[i].y - ph.path[i - 1].y;
+                        totalLen += Math.sqrt(ddx * ddx + ddy * ddy);
+                        segLens.push(totalLen);
+                    }
+                    var targetDist = ease(prog) * totalLen;
+                    var sx = ph.path[0].x,
+                        sy = ph.path[0].y;
+                    for (var i = 1; i < ph.path.length; i++) {
+                        if (segLens[i] >= targetDist) {
+                            var segStart = segLens[i - 1],
+                                segLen = segLens[i] - segStart;
+                            var t =
+                                segLen > 0
+                                    ? (targetDist - segStart) / segLen
+                                    : 0;
+                            sx =
+                                ph.path[i - 1].x +
+                                (ph.path[i].x - ph.path[i - 1].x) * t;
+                            sy =
+                                ph.path[i - 1].y +
+                                (ph.path[i].y - ph.path[i - 1].y) * t;
+                            break;
+                        }
+                        sx = ph.path[i].x;
+                        sy = ph.path[i].y;
+                    }
+                    drawCube(
+                        ctx,
+                        sx - CELL / 2,
+                        sy - CELL / 2,
+                        ph.color,
+                        CELL,
+                        true,
+                        1,
+                    );
+                }
+
+                // Launcher area
+                ctx.fillStyle = "#0a0a10";
+                ctx.fillRect(0, BH, BW, LAUNCHER_H);
+                ctx.strokeStyle = "rgba(255,255,255,0.08)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, BH);
+                ctx.lineTo(BW, BH);
+                ctx.stroke();
+
+                // Current cube in launcher
+                var lcx = BW / 2 - CELL / 2;
+                var lcy = BH + (LAUNCHER_H - CELL) / 2;
+                drawCube(ctx, lcx, lcy, currentColor, CELL, false, 1);
+
+                // Swap animation flash
+                var swapElapsed = performance.now() - swapAnim;
+                if (swapAnim > 0 && swapElapsed < 250) {
+                    var alpha = 0.6 * (1 - swapElapsed / 250);
+                    var expand = (swapElapsed / 250) * 8;
+                    ctx.save();
+                    ctx.strokeStyle = "rgba(255,255,255," + alpha + ")";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(
+                        lcx + CELL / 2,
+                        lcy + CELL / 2,
+                        CELL / 2 + expand,
+                        0,
+                        Math.PI * 2,
+                    );
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Aim arrow from launcher toward mouse
+                if (
+                    mousePos &&
+                    active &&
+                    ph.type === "idle" &&
+                    mousePos.y < BH
+                ) {
+                    var arrowLen = 22;
+                    var lCenterX = BW / 2,
+                        lCenterY = BH + LAUNCHER_H / 2;
+                    var adx = mousePos.x - lCenterX,
+                        ady = mousePos.y - lCenterY;
+                    var alen = Math.sqrt(adx * adx + ady * ady);
+                    if (alen > 0 && ady < 0) {
+                        adx /= alen;
+                        ady /= alen;
+                        var tipX = lCenterX + adx * arrowLen,
+                            tipY = lCenterY + ady * arrowLen;
+                        ctx.save();
+                        ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(lCenterX, lCenterY);
+                        ctx.lineTo(tipX, tipY);
+                        ctx.stroke();
+                        var headLen = 6;
+                        var angle = Math.atan2(ady, adx);
+                        ctx.beginPath();
+                        ctx.moveTo(tipX, tipY);
+                        ctx.lineTo(
+                            tipX - headLen * Math.cos(angle - 0.5),
+                            tipY - headLen * Math.sin(angle - 0.5),
+                        );
+                        ctx.moveTo(tipX, tipY);
+                        ctx.lineTo(
+                            tipX - headLen * Math.cos(angle + 0.5),
+                            tipY - headLen * Math.sin(angle + 0.5),
+                        );
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+
+                // Next cube indicator
+                var nSize = CELL * 0.55;
+                var nx = lcx + CELL + 12;
+                var ny = BH + (LAUNCHER_H - nSize) / 2;
+                drawCube(ctx, nx, ny, nextColor, nSize, false, 0.7);
+
+                // Particles
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.life) * 0.8;
+                    ctx.fillStyle =
+                        "rgb(" + p.c[0] + "," + p.c[1] + "," + p.c[2] + ")";
+                    ctx.beginPath();
+                    ctx.arc(
+                        p.x,
+                        p.y,
+                        p.s * Math.max(0, p.life),
+                        0,
+                        Math.PI * 2,
+                    );
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            // ═══════════════════════════════════════════════════
+            // INIT
+            // ═══════════════════════════════════════════════════
+            (function init() {
+                cv = document.getElementById("cv");
+                cv.width = CANVAS_W;
+                cv.height = CANVAS_H;
+                ctx = cv.getContext("2d");
+
+                // Events
+                cv.addEventListener("click", handleCanvasClick);
+                cv.addEventListener("contextmenu", handleContextMenu);
+                cv.addEventListener("mousemove", handleMouseMove);
+                cv.addEventListener("mouseleave", handleMouseLeave);
+
+                document
+                    .getElementById("start-btn")
+                    .addEventListener("click", startGame);
+                document
+                    .getElementById("go-btn")
+                    .addEventListener("click", startGame);
+
+                document
+                    .getElementById("lang-btn")
+                    .addEventListener("click", function () {
+                        state.lang = state.lang === "ru" ? "en" : "ru";
+                        try {
+                            localStorage.setItem(LANG_KEY, state.lang);
+                        } catch (e) {}
+                        buildTitle();
+                        updateLangBtn();
+                        document.getElementById("score-label").textContent =
+                            l("score");
+                        // Re-render current overlay labels
+                        if (state.overlay === "start") {
+                            document.getElementById("start-btn").textContent =
+                                l("play");
+                            renderLB(state.uiLB, -1, "start-lb");
+                        }
+                        if (state.overlay === "gameover") {
+                            document.getElementById("go-title").textContent =
+                                l("gameOver");
+                            document.getElementById("go-score").textContent =
+                                l("score") + ": " + score;
+                            document.getElementById("go-btn").textContent =
+                                l("restart");
+                            renderLB(state.uiLB, state.uiHi, "go-lb");
+                        }
+                    });
+
+                document
+                    .getElementById("sound-btn")
+                    .addEventListener("click", function () {
+                        state.soundOn = !state.soundOn;
+                        try {
+                            localStorage.setItem(
+                                SOUND_KEY,
+                                state.soundOn ? "on" : "off",
+                            );
+                        } catch (e) {}
+                        updateSoundBtn();
+                        if (state.soundOn) initAudio();
+                    });
+
+                // Build UI
+                buildTitle();
+                updateLangBtn();
+                updateSoundBtn();
+                document.getElementById("score-label").textContent = l("score");
+                showOverlay("start");
+
+                // Start render loop
+                lastT = performance.now();
+                requestAnimationFrame(render);
+            })();
+        </script>
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("./sw.js")
+                        .then((reg) =>
+                            console.log("SW зарегистрирован:", reg.scope),
+                        )
+                        .catch((err) => console.error("Ошибка SW:", err));
+                });
+            }
+        </script>
+    </body>
+</html>
