@@ -25,12 +25,12 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
                 min-height: 100vh;
                 user-select: none;
                 overflow: hidden;
-                padding: 12px;
-                gap: 10px;
+                padding: 8px 12px;
+                gap: 4px;
             }
             #title-row {
                 display: flex;
@@ -71,6 +71,7 @@
                 display: flex;
                 gap: 16px;
                 align-items: flex-start;
+                margin-top: 12px;
             }
             #canvas-wrap {
                 position: relative;
@@ -137,6 +138,11 @@
                 min-width: 110px;
                 max-width: 130px;
             }
+            #right-col .play-btn {
+                width: 100%;
+                padding: 8px 0;
+                font-size: 0.8rem;
+            }
             #right-col .btn-row {
                 display: flex;
                 gap: 6px;
@@ -172,58 +178,61 @@
                 border-color: rgba(255, 255, 255, 0.1);
                 color: #666;
             }
-            #score-box {
+            #score-box,
+            #time-box {
                 background: rgba(20, 20, 30, 0.75);
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 6px;
                 padding: 8px 10px;
             }
-            #score-box .label {
+            #score-box .label,
+            #time-box .label {
                 font-size: 0.6rem;
                 color: #888;
                 text-transform: uppercase;
                 letter-spacing: 0.12em;
                 margin-bottom: 2px;
             }
-            #score-box .val {
+            #score-box .val,
+            #time-box .val {
                 font-size: 1.1rem;
                 font-weight: bold;
                 color: #fff;
                 font-variant-numeric: tabular-nums;
             }
             .lb-wrap {
-                width: 85%;
-                max-width: 280px;
+                width: 90%;
+                max-width: 300px;
                 margin-bottom: 12px;
             }
             .lb-title {
-                font-size: 0.7rem;
+                font-size: 0.75rem;
                 color: #fce4a8;
                 text-transform: uppercase;
                 letter-spacing: 0.15em;
                 text-align: center;
-                margin-bottom: 6px;
+                margin-bottom: 8px;
                 font-family: "Courier New", monospace;
             }
             .lb-empty {
                 color: #555;
-                font-size: 0.65rem;
+                font-size: 0.7rem;
                 text-align: center;
-                padding: 8px 0;
+                padding: 12px 0;
                 font-family: "Courier New", monospace;
             }
             .lb-row {
                 display: flex;
                 gap: 6px;
                 align-items: center;
-                margin-bottom: 2px;
-                font-size: 0.7rem;
-                padding: 2px 5px;
+                margin-bottom: 3px;
+                font-size: 0.75rem;
+                padding: 4px 6px;
                 border-radius: 3px;
                 font-family: "Courier New", monospace;
             }
             .lb-row.even {
-                background: rgba(255, 255, 255, 0.03);
+                background: rgba(255, 255, 255, 0.05);
             }
             .lb-row.hi {
                 color: #fff;
@@ -233,16 +242,21 @@
                 color: #ccc;
             }
             .lb-row .rank {
-                min-width: 16px;
+                min-width: 18px;
                 text-align: right;
                 font-variant-numeric: tabular-nums;
             }
             .lb-row .sc {
                 font-variant-numeric: tabular-nums;
             }
+            .lb-row .tm {
+                color: #b8e8c8;
+                font-size: 0.6rem;
+                font-variant-numeric: tabular-nums;
+            }
             .lb-row .dt {
-                color: #555;
-                font-size: 0.5rem;
+                color: #666;
+                font-size: 0.55rem;
                 margin-left: auto;
             }
             .go-title {
@@ -251,11 +265,90 @@
                 color: #f0a8b8;
                 font-family: inherit;
             }
-            .go-score {
-                font-size: 1rem;
-                margin-bottom: 6px;
-                color: #ccc;
+            .victory-title {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+                color: #fce4a8;
                 font-family: inherit;
+                text-shadow:
+                    0 0 20px rgba(252, 228, 168, 0.6),
+                    0 0 40px rgba(252, 228, 168, 0.3);
+                animation: vicGlow 1.5s ease-in-out infinite;
+            }
+            @keyframes vicGlow {
+                0%,
+                100% {
+                    text-shadow:
+                        0 0 20px rgba(252, 228, 168, 0.6),
+                        0 0 40px rgba(252, 228, 168, 0.3);
+                }
+                50% {
+                    text-shadow:
+                        0 0 30px rgba(252, 228, 168, 0.8),
+                        0 0 60px rgba(252, 228, 168, 0.4),
+                        0 0 80px rgba(252, 228, 168, 0.2);
+                }
+            }
+            .vic-icon {
+                color: #fce4a8;
+                cursor: help;
+                font-size: 0.75rem;
+                margin-right: 3px;
+                text-shadow: 0 0 6px rgba(252, 228, 168, 0.5);
+                position: relative;
+            }
+            .vic-icon:hover::after {
+                content: attr(data-tip);
+                position: absolute;
+                bottom: 120%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(20, 20, 30, 0.95);
+                border: 1px solid rgba(252, 228, 168, 0.3);
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 0.6rem;
+                color: #fce4a8;
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: 99;
+            }
+            .gp-indicator {
+                position: absolute;
+                bottom: 8px;
+                left: 8px;
+                z-index: 15;
+                pointer-events: none;
+                font-size: 0.55rem;
+                color: #888;
+            }
+            .pause-title {
+                font-size: 1.5rem;
+                color: #fce4a8;
+                font-family: inherit;
+                text-shadow: 0 0 15px rgba(252, 228, 168, 0.5);
+                animation: pausePulse 1.5s ease-in-out infinite;
+            }
+            @keyframes pausePulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+            .restart-title {
+                font-size: 1.1rem;
+                color: #f0a8b8;
+                font-family: inherit;
+                margin-bottom: 12px;
+            }
+            .restart-hint {
+                font-size: 0.65rem;
+                color: #888;
+                font-family: inherit;
+                margin-top: 10px;
             }
             svg {
                 display: inline-block;
@@ -268,6 +361,7 @@
         <div id="game-area">
             <div id="canvas-wrap">
                 <canvas id="cv"></canvas>
+                <span class="gp-indicator" id="gpIndicator"></span>
                 <div
                     id="bonus-el"
                     class="bonus-text"
@@ -275,7 +369,6 @@
                 ></div>
                 <div id="start-overlay" class="overlay">
                     <div id="start-lb" class="lb-wrap"></div>
-                    <button class="play-btn" id="start-btn"></button>
                 </div>
                 <div
                     id="gameover-overlay"
@@ -283,9 +376,19 @@
                     style="display: none"
                 >
                     <div class="go-title" id="go-title"></div>
-                    <div class="go-score" id="go-score"></div>
                     <div id="go-lb" class="lb-wrap"></div>
-                    <button class="play-btn" id="go-btn"></button>
+                </div>
+                <div id="victory-overlay" class="overlay" style="display: none">
+                    <div class="victory-title" id="vic-title"></div>
+                    <div id="vic-lb" class="lb-wrap"></div>
+                </div>
+                <div id="pause-overlay" class="overlay" style="display: none">
+                    <div class="pause-title" id="pause-title"></div>
+                </div>
+                <div id="restart-overlay" class="overlay" style="display: none">
+                    <div class="restart-title" id="restart-title"></div>
+                    <button class="play-btn" id="restart-yes-btn"></button>
+                    <div class="restart-hint" id="restart-hint"></div>
                 </div>
             </div>
             <div id="right-col">
@@ -297,6 +400,15 @@
                     <div class="label" id="score-label"></div>
                     <div class="val" id="score-val">0</div>
                 </div>
+                <div id="time-box">
+                    <div class="label" id="time-label"></div>
+                    <div class="val" id="time-val">0:00</div>
+                </div>
+                <button
+                    class="play-btn"
+                    id="play-btn"
+                    style="display: none"
+                ></button>
             </div>
         </div>
         <script>
@@ -379,11 +491,11 @@
                     [0, 1, 0, 0, 0],
                 ],
                 Б: [
-                    [0, 1, 1, 1, 0],
+                    [1, 1, 1, 1, 0],
                     [1, 0, 0, 0, 0],
-                    [1, 1, 1, 0, 0],
+                    [1, 1, 1, 1, 0],
                     [1, 0, 0, 0, 1],
-                    [0, 1, 1, 1, 0],
+                    [1, 1, 1, 1, 0],
                 ],
                 О: [
                     [0, 1, 1, 1, 0],
@@ -498,14 +610,28 @@
             // ═══════════════════════════════════════════════════
             var LOC = {
                 play: { ru: "ИГРАТЬ", en: "PLAY" },
-                restart: { ru: "ЗАНОВО", en: "AGAIN" },
                 gameOver: { ru: "КОНЕЦ ИГРЫ", en: "GAME OVER" },
                 score: { ru: "Счёт", en: "Score" },
+                time: { ru: "Время", en: "Time" },
                 leaderboard: { ru: "Топ-10", en: "Top-10" },
                 noRecords: { ru: "Пока нет рекордов", en: "No records yet" },
                 fallBonus: { ru: "ОБРЫВ! +", en: "DROP! +" },
                 freeShot: { ru: " БЕСПЛАТНЫЙ ХОД!", en: " FREE SHOT!" },
                 fullCol: { ru: "СТОЛБЕЦ ПОЛОН", en: "COLUMN FULL" },
+                combo: { ru: "КОМБО ×", en: "COMBO ×" },
+                nearClear: { ru: "ПОЧТИ ЧИСТО! +", en: "NEAR CLEAR! +" },
+                megaFall: { ru: "МЕГА ОБРЫВ! +", en: "MEGA DROP! +" },
+                victory: { ru: "ПОЛНАЯ ОЧИСТКА!", en: "COMPLETE CLEAR!" },
+                victoryPts: { ru: "+100 000 БОНУС!", en: "+100 000 BONUS!" },
+                victoryTip: {
+                    ru: "Полная очистка — поле очищено!",
+                    en: "Complete clear — field cleared!",
+                },
+                gamepad: { ru: "Геймпад подключён", en: "Gamepad connected" },
+                pause: { ru: "ПАУЗА", en: "PAUSE" },
+                restartQ: { ru: "Начать заново?", en: "Start over?" },
+                restartYes: { ru: "ДА", en: "YES" },
+                restartHint: { ru: "A — да, B — нет", en: "A — yes, B — no" },
             };
 
             function l(k) {
@@ -783,14 +909,21 @@
                     localStorage.setItem(LB_KEY, JSON.stringify(lb));
                 } catch (e) {}
             }
-            function addLBScore(sc, lang) {
+            function formatTime(sec) {
+                var m = Math.floor(sec / 60),
+                    s = Math.floor(sec % 60);
+                return m + ":" + (s < 10 ? "0" : "") + s;
+            }
+            function addLBScore(sc, sec, lang, vic) {
                 var lb = loadLB();
                 var entry = {
                     score: sc,
+                    time: Math.round(sec),
                     date: new Date().toLocaleDateString(
                         lang === "ru" ? "ru-RU" : "en-US",
                     ),
                 };
+                if (vic) entry.victory = true;
                 lb.push(entry);
                 lb.sort(function (a, b) {
                     return b.score - a.score;
@@ -923,27 +1056,71 @@
             var disconnectReward = false;
             var bonusTimeout = null;
             var swapAnim = 0;
+            var comboCount = 0;
+            var nearClearGiven = false;
+            var gameStartTime = 0;
+            var gameElapsed = 0;
+            var pauseStartT = 0;
+            var gpConnected = false;
+            var gpPrevState = null;
+            var gpAimX = 0;
+            var gpAimY = 0;
+            var gpAimActive = false;
+            var GP_AIM_SPEED = 350;
+            var paused = false;
+            var restartConfirm = false;
 
             // Sound
             var audioCtx = null;
 
+            function createAudioCtx() {
+                try {
+                    audioCtx = new (
+                        window.AudioContext || window.webkitAudioContext
+                    )();
+                } catch (e) {
+                    audioCtx = null;
+                    state.soundOn = false;
+                }
+                if (audioCtx) {
+                    audioCtx.onstatechange = function () {
+                        if (audioCtx && audioCtx.state === "interrupted") {
+                            audioCtx.resume().catch(function () {});
+                        }
+                    };
+                }
+            }
+
             function initAudio() {
                 if (!audioCtx && state.soundOn) {
-                    try {
-                        audioCtx = new (
-                            window.AudioContext || window.webkitAudioContext
-                        )();
-                    } catch (e) {
-                        state.soundOn = false;
+                    createAudioCtx();
+                }
+                if (audioCtx) {
+                    if (
+                        audioCtx.state === "suspended" ||
+                        audioCtx.state === "interrupted"
+                    ) {
+                        audioCtx.resume().catch(function () {});
+                    } else if (audioCtx.state === "closed") {
+                        audioCtx = null;
+                        createAudioCtx();
                     }
                 }
-                if (audioCtx && audioCtx.state === "suspended")
-                    audioCtx.resume().catch(function () {});
             }
 
             function playTone(freq, duration, volume, type) {
                 if (!state.soundOn) return;
+                if (!audioCtx || audioCtx.state === "closed") {
+                    audioCtx = null;
+                    createAudioCtx();
+                }
                 if (!audioCtx) return;
+                if (
+                    audioCtx.state === "suspended" ||
+                    audioCtx.state === "interrupted"
+                ) {
+                    audioCtx.resume().catch(function () {});
+                }
                 try {
                     var osc = audioCtx.createOscillator(),
                         gain = audioCtx.createGain();
@@ -959,7 +1136,22 @@
                     gain.connect(audioCtx.destination);
                     osc.start(audioCtx.currentTime);
                     osc.stop(audioCtx.currentTime + duration);
-                } catch (e) {}
+                } catch (e) {
+                    audioCtx = null;
+                    createAudioCtx();
+                }
+            }
+
+            // Возобновление звука после пробуждения системы или возврата на вкладку
+            document.addEventListener("visibilitychange", function () {
+                if (!document.hidden) {
+                    initAudio();
+                }
+            });
+            if (typeof window.addEventListener === "function") {
+                window.addEventListener("pageshow", function () {
+                    initAudio();
+                });
             }
 
             var sfx = {
@@ -1036,6 +1228,53 @@
                         playTone(550, 0.06, 0.06, "sine");
                     }, 40);
                 },
+                combo: function (n) {
+                    var b = 600 + n * 80;
+                    playTone(b, 0.15, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(b * 1.25, 0.12, 0.08, "sine");
+                    }, 60);
+                    setTimeout(function () {
+                        playTone(b * 1.5, 0.18, 0.12, "sine");
+                    }, 130);
+                },
+                nearClear: function () {
+                    playTone(523, 0.12, 0.1, "sine");
+                    setTimeout(function () {
+                        playTone(659, 0.12, 0.1, "sine");
+                    }, 80);
+                    setTimeout(function () {
+                        playTone(784, 0.12, 0.1, "sine");
+                    }, 160);
+                    setTimeout(function () {
+                        playTone(1047, 0.25, 0.14, "sine");
+                    }, 240);
+                },
+                megaFall: function () {
+                    playTone(150, 0.2, 0.12, "triangle");
+                    setTimeout(function () {
+                        playTone(120, 0.25, 0.1, "triangle");
+                    }, 100);
+                    setTimeout(function () {
+                        playTone(100, 0.3, 0.08, "sine");
+                    }, 220);
+                    setTimeout(function () {
+                        playTone(200, 0.15, 0.1, "sine");
+                    }, 350);
+                    setTimeout(function () {
+                        playTone(400, 0.2, 0.12, "sine");
+                    }, 460);
+                },
+                victory: function () {
+                    [523, 659, 784, 1047, 1319].forEach(function (f, i) {
+                        setTimeout(function () {
+                            playTone(f, 0.25, 0.14, "sine");
+                        }, i * 120);
+                    });
+                    setTimeout(function () {
+                        playTone(1568, 0.4, 0.16, "sine");
+                    }, 650);
+                },
             };
 
             // ═══════════════════════════════════════════════════
@@ -1077,6 +1316,48 @@
             // ═══════════════════════════════════════════════════
             function afterResolve() {
                 var g = grid;
+                // Near-clear bonus: only 1 row has cubes left
+                var occRows = 0;
+                for (var r = 0; r < ROWS; r++) {
+                    for (var c = 0; c < COLS; c++) {
+                        if (g[r][c] !== -1) {
+                            occRows++;
+                            break;
+                        }
+                    }
+                }
+                if (occRows === 1 && !nearClearGiven) {
+                    nearClearGiven = true;
+                    var ncPts = 300;
+                    score += ncPts;
+                    updateScore();
+                    showBonus(l("nearClear") + ncPts, 2000);
+                    sfx.nearClear();
+                }
+                if (occRows > 1) nearClearGiven = false;
+                // Full clear — VICTORY!
+                if (occRows === 0) {
+                    score += 100000;
+                    updateScore();
+                    active = false;
+                    state.isActive = false;
+                    var elapsed =
+                        gameElapsed +
+                        (performance.now() - gameStartTime) / 1000;
+                    var res = addLBScore(score, elapsed, state.lang, true);
+                    state.uiLB = res.lb;
+                    state.uiHi = res.hi;
+                    showBonus(l("victoryPts"), 3000);
+                    sfx.nearClear();
+                    setTimeout(function () {
+                        sfx.victory();
+                    }, 2000);
+                    setTimeout(function () {
+                        showOverlay("victory");
+                    }, 2500);
+                    phase = { type: "idle" };
+                    return;
+                }
                 if (disconnectReward) {
                     disconnectReward = false;
                     phase = { type: "idle" };
@@ -1088,7 +1369,10 @@
                         if (g[ROWS - 1][c] !== -1) {
                             active = false;
                             state.isActive = false;
-                            var res = addLBScore(score, state.lang);
+                            var elapsed =
+                                gameElapsed +
+                                (performance.now() - gameStartTime) / 1000;
+                            var res = addLBScore(score, elapsed, state.lang);
                             state.uiLB = res.lb;
                             state.uiHi = res.hi;
                             sfx.gameOver();
@@ -1108,7 +1392,10 @@
                 if (isGameOver(g)) {
                     active = false;
                     state.isActive = false;
-                    var res = addLBScore(score, state.lang);
+                    var elapsed2 =
+                        gameElapsed +
+                        (performance.now() - gameStartTime) / 1000;
+                    var res = addLBScore(score, elapsed2, state.lang);
                     state.uiLB = res.lb;
                     state.uiHi = res.hi;
                     sfx.gameOver();
@@ -1121,14 +1408,22 @@
                 var g = grid;
                 var group = findGroupAt(g, lastLandRow, lastLandCol);
                 if (group.size >= 3) {
+                    comboCount++;
                     var totalRemoved = group.size;
-                    var pts = totalRemoved * 10;
-                    if (totalRemoved >= 7) pts = totalRemoved * 25;
-                    else if (totalRemoved >= 5) pts = totalRemoved * 18;
-                    else if (totalRemoved >= 4) pts = totalRemoved * 14;
+                    var basePts = totalRemoved * 10;
+                    if (totalRemoved >= 7) basePts = totalRemoved * 25;
+                    else if (totalRemoved >= 5) basePts = totalRemoved * 18;
+                    else if (totalRemoved >= 4) basePts = totalRemoved * 14;
+                    var comboMult = 1 + Math.min(comboCount - 1, 4) * 0.5;
+                    var pts = Math.round(basePts * comboMult);
                     score += pts;
                     updateScore();
-                    if (totalRemoved >= 5) showBonus("+" + pts);
+                    if (comboCount >= 2) {
+                        showBonus(l("combo") + comboCount + "! +" + pts, 1500);
+                        sfx.combo(comboCount);
+                    } else if (totalRemoved >= 5) {
+                        showBonus("+" + pts);
+                    }
                     sfx.match(totalRemoved);
                     group.forEach(function (key) {
                         var parts = key.split(",");
@@ -1144,13 +1439,22 @@
                     };
                     return;
                 }
+                comboCount = 0;
                 var disconnected = findDisconnected(g);
                 if (disconnected.size > 0) {
                     disconnectReward = true;
-                    var pts = disconnected.size * 15;
-                    score += pts;
+                    var dPts = disconnected.size * 15;
+                    if (disconnected.size >= 10) {
+                        var mult =
+                            1.5 + Math.min(disconnected.size - 10, 10) * 0.1;
+                        dPts = Math.round(dPts * mult);
+                        showBonus(l("megaFall") + dPts + l("freeShot"), 2000);
+                        sfx.megaFall();
+                    } else {
+                        showBonus(l("fallBonus") + dPts + l("freeShot"));
+                    }
+                    score += dPts;
                     updateScore();
-                    showBonus(l("fallBonus") + pts + l("freeShot"));
                     sfx.fall(disconnected.size);
                     disconnected.forEach(function (key) {
                         var parts = key.split(",");
@@ -1179,10 +1483,18 @@
                 var disconnected = findDisconnected(g);
                 if (disconnected.size > 0) {
                     disconnectReward = true;
-                    var pts = disconnected.size * 15;
-                    score += pts;
+                    var dPts = disconnected.size * 15;
+                    if (disconnected.size >= 10) {
+                        var mult =
+                            1.5 + Math.min(disconnected.size - 10, 10) * 0.1;
+                        dPts = Math.round(dPts * mult);
+                        showBonus(l("megaFall") + dPts + l("freeShot"), 2000);
+                        sfx.megaFall();
+                    } else {
+                        showBonus(l("fallBonus") + dPts + l("freeShot"), 1800);
+                    }
+                    score += dPts;
                     updateScore();
-                    showBonus(l("fallBonus") + pts + l("freeShot"), 1800);
                     sfx.fall(disconnected.size);
                     disconnected.forEach(function (key) {
                         var parts = key.split(",");
@@ -1217,7 +1529,10 @@
                 if (isGameOver(g)) {
                     active = false;
                     state.isActive = false;
-                    var res = addLBScore(score, state.lang);
+                    var elapsed2 =
+                        gameElapsed +
+                        (performance.now() - gameStartTime) / 1000;
+                    var res = addLBScore(score, elapsed2, state.lang);
                     state.uiLB = res.lb;
                     state.uiHi = res.hi;
                     sfx.gameOver();
@@ -1242,6 +1557,13 @@
             function updateScore() {
                 document.getElementById("score-val").textContent = score;
             }
+            function updateTime() {
+                if (!active) return;
+                var elapsed =
+                    gameElapsed + (performance.now() - gameStartTime) / 1000;
+                document.getElementById("time-val").textContent =
+                    formatTime(elapsed);
+            }
 
             function renderLB(lb, hi, containerId) {
                 var el = document.getElementById(containerId);
@@ -1255,13 +1577,24 @@
                         var cls = "lb-row";
                         if (i % 2 === 0) cls += " even";
                         if (i === hi) cls += " hi";
+                        var vicIcon = lb[i].victory
+                            ? '<span class="vic-icon" data-tip="' +
+                              l("victoryTip") +
+                              '">★</span>'
+                            : "";
+                        var timeStr =
+                            lb[i].time != null ? formatTime(lb[i].time) : "";
                         html +=
                             '<div class="' +
                             cls +
                             '"><span class="rank">' +
                             (i + 1) +
-                            '</span><span class="sc">' +
+                            "</span>" +
+                            vicIcon +
+                            '<span class="sc">' +
                             lb[i].score +
+                            '</span><span class="tm">' +
+                            timeStr +
                             '</span><span class="dt">' +
                             lb[i].date +
                             "</span></div>";
@@ -1275,23 +1608,32 @@
                 document.getElementById("start-overlay").style.display = "none";
                 document.getElementById("gameover-overlay").style.display =
                     "none";
+                document.getElementById("victory-overlay").style.display =
+                    "none";
+                document.getElementById("play-btn").style.display = "none";
                 if (cv) cv.style.cursor = "default";
                 if (type === "start") {
                     document.getElementById("start-overlay").style.display =
                         "flex";
-                    document.getElementById("start-btn").textContent =
-                        l("play");
+                    document.getElementById("play-btn").style.display = "block";
+                    document.getElementById("play-btn").textContent = l("play");
                     renderLB(state.uiLB, -1, "start-lb");
                 } else if (type === "gameover") {
                     document.getElementById("gameover-overlay").style.display =
                         "flex";
                     document.getElementById("go-title").textContent =
                         l("gameOver");
-                    document.getElementById("go-score").textContent =
-                        l("score") + ": " + score;
-                    document.getElementById("go-btn").textContent =
-                        l("restart");
+                    document.getElementById("play-btn").style.display = "block";
+                    document.getElementById("play-btn").textContent = l("play");
                     renderLB(state.uiLB, state.uiHi, "go-lb");
+                } else if (type === "victory") {
+                    document.getElementById("victory-overlay").style.display =
+                        "flex";
+                    document.getElementById("vic-title").textContent =
+                        l("victory");
+                    document.getElementById("play-btn").style.display = "block";
+                    document.getElementById("play-btn").textContent = l("play");
+                    renderLB(state.uiLB, state.uiHi, "vic-lb");
                 }
             }
 
@@ -1300,6 +1642,9 @@
                 document.getElementById("start-overlay").style.display = "none";
                 document.getElementById("gameover-overlay").style.display =
                     "none";
+                document.getElementById("victory-overlay").style.display =
+                    "none";
+                document.getElementById("play-btn").style.display = "none";
             }
 
             function buildTitle() {
@@ -1378,6 +1723,16 @@
                 particles = [];
                 score = 0;
                 shotCount = 0;
+                comboCount = 0;
+                nearClearGiven = false;
+                paused = false;
+                restartConfirm = false;
+                gameElapsed = 0;
+                pauseStartT = 0;
+                gameStartTime = performance.now();
+                document.getElementById("pause-overlay").style.display = "none";
+                document.getElementById("restart-overlay").style.display =
+                    "none";
                 currentColor = randomColorFromField(grid);
                 nextColor = randomColorFromField(grid, currentColor);
                 disconnectReward = false;
@@ -1388,10 +1743,13 @@
                 state.bonusText = "";
                 document.getElementById("bonus-el").style.display = "none";
                 updateScore();
+                updateTime();
                 hideOverlays();
                 active = true;
                 state.isActive = true;
                 cv.style.cursor = "crosshair";
+                gpAimX = BW / 2;
+                gpAimY = BH / 2;
                 initAudio();
                 sfx.start();
             }
@@ -1479,6 +1837,7 @@
                 var mx = (e.clientX - rect.left) * sx,
                     my = (e.clientY - rect.top) * sy;
                 mousePos = { x: mx, y: my };
+                gpAimActive = false;
                 if (active && phase.type === "idle" && my < BH) {
                     trajPreview = calculateTrajectory(grid, mx, my);
                 } else {
@@ -1492,6 +1851,289 @@
             }
 
             // ═══════════════════════════════════════════════════
+            // GAMEPAD
+            // ═══════════════════════════════════════════════════
+            function pollGamepad(dt) {
+                var gamepads = navigator.getGamepads
+                    ? navigator.getGamepads()
+                    : [];
+                var gp = null;
+                for (var i = 0; i < gamepads.length; i++) {
+                    if (gamepads[i]) {
+                        gp = gamepads[i];
+                        break;
+                    }
+                }
+                if (!gp) {
+                    gpPrevState = null;
+                    return;
+                }
+                var gpJustPressed = function (idx) {
+                    return (
+                        ((gp.buttons[idx] && gp.buttons[idx].pressed) ||
+                            false) &&
+                        !((gpPrevState && gpPrevState.buttons[idx]) || false)
+                    );
+                };
+                // Aim with left stick / D-pad
+                var ax = gp.axes[0] || 0,
+                    ay = gp.axes[1] || 0;
+                var deadzone = 0.2;
+                if (Math.abs(ax) < deadzone) ax = 0;
+                if (Math.abs(ay) < deadzone) ay = 0;
+                var dLeft = (gp.buttons[14] && gp.buttons[14].pressed) || false;
+                var dRight =
+                    (gp.buttons[15] && gp.buttons[15].pressed) || false;
+                var dUp = (gp.buttons[12] && gp.buttons[12].pressed) || false;
+                var dDown = (gp.buttons[13] && gp.buttons[13].pressed) || false;
+                if (dLeft) ax = -1;
+                if (dRight) ax = 1;
+                if (dUp) ay = -1;
+                if (dDown) ay = 1;
+                if (ax !== 0 || ay !== 0 || dLeft || dRight || dUp || dDown) {
+                    gpAimActive = true;
+                    gpAimX += ax * GP_AIM_SPEED * dt;
+                    gpAimY += ay * GP_AIM_SPEED * dt;
+                    gpAimX = Math.max(
+                        CELL / 2,
+                        Math.min(BW - CELL / 2, gpAimX),
+                    );
+                    gpAimY = Math.max(
+                        CELL / 2,
+                        Math.min(BH - CELL / 2, gpAimY),
+                    );
+                    mousePos = { x: gpAimX, y: gpAimY };
+                    if (active && phase.type === "idle" && gpAimY < BH) {
+                        trajPreview = calculateTrajectory(grid, gpAimX, gpAimY);
+                    }
+                }
+                // A button (0): Shoot / Confirm restart / Start from overlay
+                if (gpJustPressed(0)) {
+                    initAudio();
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                        paused = false;
+                        document.getElementById("pause-overlay").style.display =
+                            "none";
+                        startGame();
+                    } else if (paused) {
+                        // ignore A while paused (not in restart confirm)
+                    } else if (!active || phase.type !== "idle") {
+                        if (
+                            state.overlay === "start" ||
+                            state.overlay === "gameover" ||
+                            state.overlay === "victory"
+                        )
+                            startGame();
+                    } else if (gpAimActive && mousePos && mousePos.y < BH) {
+                        gpShootAt(mousePos.x, mousePos.y);
+                    }
+                }
+                // B button (1): Swap colors / Cancel restart confirm
+                if (gpJustPressed(1)) {
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        paused = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                        cv.style.cursor = "crosshair";
+                        return;
+                    }
+                    if (active && phase.type === "idle" && !paused) {
+                        initAudio();
+                        var tmp = currentColor;
+                        currentColor = nextColor;
+                        nextColor = tmp;
+                        swapAnim = performance.now();
+                        sfx.swap();
+                    }
+                }
+                // Start button (9): Pause / Unpause / Start game / Cancel restart confirm
+                if (gpJustPressed(9)) {
+                    initAudio();
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        paused = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                        cv.style.cursor = "crosshair";
+                        return;
+                    }
+                    if (
+                        state.overlay === "start" ||
+                        state.overlay === "gameover" ||
+                        state.overlay === "victory"
+                    ) {
+                        startGame();
+                    } else if (paused) {
+                        togglePause();
+                    } else if (active) {
+                        togglePause();
+                    }
+                }
+                // Select button (8): Show restart confirmation
+                if (gpJustPressed(8)) {
+                    initAudio();
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        paused = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                        cv.style.cursor = "crosshair";
+                        return;
+                    }
+                    if (active && !paused && state.overlay === "none") {
+                        restartConfirm = true;
+                        paused = true;
+                        document.getElementById("pause-overlay").style.display =
+                            "none";
+                        var rEl = document.getElementById("restart-overlay");
+                        rEl.style.display = "flex";
+                        document.getElementById("restart-title").textContent =
+                            l("restartQ");
+                        document.getElementById("restart-yes-btn").textContent =
+                            l("restartYes");
+                        document.getElementById("restart-hint").textContent =
+                            l("restartHint");
+                        cv.style.cursor = "default";
+                    }
+                }
+                gpPrevState = {
+                    buttons: Array.prototype.slice
+                        .call(gp.buttons)
+                        .map(function (b) {
+                            return b.pressed;
+                        }),
+                    axes: Array.prototype.slice.call(gp.axes),
+                };
+            }
+
+            function gpShootAt(mx, my) {
+                if (!active || phase.type !== "idle") return;
+                var result = calculateTrajectory(grid, mx, my);
+                if (!result) {
+                    sfx.fullCol();
+                    showBonus(l("fullCol"), 800);
+                    return;
+                }
+                var landRow = result.landRow,
+                    landCol = result.landCol,
+                    path = result.path;
+                var totalLen = 0;
+                for (var i = 1; i < path.length; i++) {
+                    var ddx = path[i].x - path[i - 1].x,
+                        ddy = path[i].y - path[i - 1].y;
+                    totalLen += Math.sqrt(ddx * ddx + ddy * ddy);
+                }
+                var color = currentColor;
+                phase = {
+                    type: "shooting",
+                    landRow: landRow,
+                    landCol: landCol,
+                    color: color,
+                    path: path,
+                    t0: performance.now(),
+                    dur: Math.max(150, (totalLen / SHOOT_SPEED) * 1000),
+                };
+                sfx.shoot();
+                if (path.length > 2) {
+                    var accLen = 0;
+                    for (var i = 1; i < path.length; i++) {
+                        var ddx = path[i].x - path[i - 1].x,
+                            ddy = path[i].y - path[i - 1].y;
+                        accLen += Math.sqrt(ddx * ddx + ddy * ddy);
+                        if (i < path.length - 1) {
+                            var bounceTime =
+                                (accLen / totalLen) *
+                                ((totalLen / SHOOT_SPEED) * 1000);
+                            (function (bt) {
+                                setTimeout(
+                                    function () {
+                                        sfx.ricochet();
+                                    },
+                                    Math.max(50, bt),
+                                );
+                            })(bounceTime);
+                        }
+                    }
+                }
+                trajPreview = null;
+                currentColor = nextColor;
+                nextColor = randomColorFromField(grid, currentColor);
+            }
+
+            window.addEventListener("gamepadconnected", function () {
+                gpConnected = true;
+                document.getElementById("gpIndicator").textContent =
+                    "🎮 " + l("gamepad");
+            });
+            window.addEventListener("gamepaddisconnected", function () {
+                gpConnected = false;
+                gpPrevState = null;
+                gpAimActive = false;
+                document.getElementById("gpIndicator").textContent = "";
+            });
+
+            // ═══════════════════════════════════════════════════
+            // PAUSE
+            // ═══════════════════════════════════════════════════
+            function togglePause() {
+                if (!active) return;
+                paused = !paused;
+                var el = document.getElementById("pause-overlay");
+                if (paused) {
+                    el.style.display = "flex";
+                    document.getElementById("pause-title").textContent =
+                        l("pause");
+                    cv.style.cursor = "default";
+                    pauseStartT = performance.now();
+                } else {
+                    el.style.display = "none";
+                    cv.style.cursor = "crosshair";
+                    gameElapsed += (performance.now() - gameStartTime) / 1000;
+                    gameStartTime = performance.now();
+                    // Also cancel restart confirm when unpausing
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                    }
+                }
+            }
+
+            document.addEventListener("keydown", function (e) {
+                if (
+                    e.key === "p" ||
+                    e.key === "P" ||
+                    e.key === "з" ||
+                    e.key === "З"
+                ) {
+                    e.preventDefault();
+                    initAudio();
+                    if (state.overlay !== "none") return;
+                    if (restartConfirm) {
+                        restartConfirm = false;
+                        paused = false;
+                        document.getElementById(
+                            "restart-overlay",
+                        ).style.display = "none";
+                        document.getElementById("pause-overlay").style.display =
+                            "none";
+                        cv.style.cursor = "crosshair";
+                        return;
+                    }
+                    togglePause();
+                }
+            });
+
+            // ═══════════════════════════════════════════════════
             // RENDER LOOP
             // ═══════════════════════════════════════════════════
             var cv, ctx, lastT;
@@ -1501,7 +2143,16 @@
                 lastT = now;
                 var ph = phase;
 
-                // Phase transitions
+                // Gamepad (always poll even when paused, so Start/Select can unpause)
+                if (gpConnected) pollGamepad(dt);
+
+                // Phase transitions (skip when paused)
+                if (paused) {
+                    requestAnimationFrame(render);
+                    return;
+                }
+                // Update timer display
+                updateTime();
                 if (ph.type === "shooting" && now - ph.t0 >= ph.dur)
                     afterShoot();
                 else if (ph.type === "removing" && now - ph.t0 >= ph.dur)
@@ -1527,12 +2178,12 @@
                 ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
                 // Grid background
-                ctx.fillStyle = "#0e0e14";
+                ctx.fillStyle = "#0e0e18";
                 ctx.fillRect(0, 0, BW, BH);
 
                 // Grid lines
-                ctx.strokeStyle = "rgba(255,255,255,0.025)";
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = "rgba(255,255,255,0.03)";
+                ctx.lineWidth = 0.5;
                 for (var r = 0; r <= ROWS; r++) {
                     ctx.beginPath();
                     ctx.moveTo(0, GAP / 2 + r * CELL_FULL);
@@ -1545,6 +2196,11 @@
                     ctx.lineTo(GAP / 2 + c * CELL_FULL, BH);
                     ctx.stroke();
                 }
+
+                // Grid border
+                ctx.strokeStyle = "rgba(255,255,255,0.1)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, BW, BH);
 
                 // Danger zone (bottom 3 rows)
                 var dangerStart = ROWS - 3;
@@ -1574,6 +2230,43 @@
                     ctx.globalAlpha = 0.3;
                     drawCube(ctx, gpx, gpy, currentColor, CELL, false, 0.3);
                     ctx.globalAlpha = 1;
+                }
+
+                // Gamepad aim crosshair
+                if (
+                    gpAimActive &&
+                    active &&
+                    ph.type === "idle" &&
+                    mousePos &&
+                    mousePos.y < BH
+                ) {
+                    ctx.save();
+                    var gpx2 = mousePos.x,
+                        gpy2 = mousePos.y;
+                    var pulse = 0.5 + 0.5 * Math.sin(now * 0.004);
+                    ctx.strokeStyle =
+                        "rgba(255,255,255," + (0.3 + 0.2 * pulse) + ")";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(gpx2, gpy2, 8 + pulse * 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(gpx2 - 14, gpy2);
+                    ctx.lineTo(gpx2 - 4, gpy2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(gpx2 + 4, gpy2);
+                    ctx.lineTo(gpx2 + 14, gpy2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(gpx2, gpy2 - 14);
+                    ctx.lineTo(gpx2, gpy2 - 4);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(gpx2, gpy2 + 4);
+                    ctx.lineTo(gpx2, gpy2 + 14);
+                    ctx.stroke();
+                    ctx.restore();
                 }
 
                 // Draw cubes
@@ -1789,11 +2482,24 @@
                 cv.addEventListener("mouseleave", handleMouseLeave);
 
                 document
-                    .getElementById("start-btn")
+                    .getElementById("play-btn")
                     .addEventListener("click", startGame);
+
                 document
-                    .getElementById("go-btn")
-                    .addEventListener("click", startGame);
+                    .getElementById("restart-yes-btn")
+                    .addEventListener("click", function () {
+                        if (restartConfirm) {
+                            restartConfirm = false;
+                            document.getElementById(
+                                "restart-overlay",
+                            ).style.display = "none";
+                            paused = false;
+                            document.getElementById(
+                                "pause-overlay",
+                            ).style.display = "none";
+                            startGame();
+                        }
+                    });
 
                 document
                     .getElementById("lang-btn")
@@ -1806,20 +2512,44 @@
                         updateLangBtn();
                         document.getElementById("score-label").textContent =
                             l("score");
+                        document.getElementById("time-label").textContent =
+                            l("time");
                         // Re-render current overlay labels
                         if (state.overlay === "start") {
-                            document.getElementById("start-btn").textContent =
+                            document.getElementById("play-btn").textContent =
                                 l("play");
                             renderLB(state.uiLB, -1, "start-lb");
                         }
                         if (state.overlay === "gameover") {
                             document.getElementById("go-title").textContent =
                                 l("gameOver");
-                            document.getElementById("go-score").textContent =
-                                l("score") + ": " + score;
-                            document.getElementById("go-btn").textContent =
-                                l("restart");
+                            document.getElementById("play-btn").textContent =
+                                l("play");
                             renderLB(state.uiLB, state.uiHi, "go-lb");
+                        }
+                        if (state.overlay === "victory") {
+                            document.getElementById("vic-title").textContent =
+                                l("victory");
+                            document.getElementById("play-btn").textContent =
+                                l("play");
+                            renderLB(state.uiLB, state.uiHi, "vic-lb");
+                        }
+                        if (gpConnected)
+                            document.getElementById("gpIndicator").textContent =
+                                "🎮 " + l("gamepad");
+                        if (paused)
+                            document.getElementById("pause-title").textContent =
+                                l("pause");
+                        if (restartConfirm) {
+                            document.getElementById(
+                                "restart-title",
+                            ).textContent = l("restartQ");
+                            document.getElementById(
+                                "restart-yes-btn",
+                            ).textContent = l("restartYes");
+                            document.getElementById(
+                                "restart-hint",
+                            ).textContent = l("restartHint");
                         }
                     });
 
@@ -1842,6 +2572,7 @@
                 updateLangBtn();
                 updateSoundBtn();
                 document.getElementById("score-label").textContent = l("score");
+                document.getElementById("time-label").textContent = l("time");
                 showOverlay("start");
 
                 // Start render loop
