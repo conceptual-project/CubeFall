@@ -166,18 +166,18 @@ var LOC = {
   gameOver:{ru:'КОНЕЦ ИГРЫ',en:'GAME OVER'},score:{ru:'Счёт',en:'Score'},time:{ru:'Время',en:'Time'},
   leaderboard:{ru:'Топ-10',en:'Top-10'},
   noRecords:{ru:'Пока нет рекордов',en:'No records yet'},
-  fallBonus:{ru:'ОБРЫВ! +',en:'DROP! +'},
+  fallBonus:{ru:'ОБРЫВ! +',en:'FALL BONUS! +'},
   freeShot:{ru:' БЕСПЛАТНЫЙ ХОД!',en:' FREE SHOT!'},fullCol:{ru:'СТОЛБЕЦ ПОЛОН',en:'COLUMN FULL'},
   combo:{ru:'КОМБО ×',en:'COMBO ×'},
   nearClear:{ru:'ПОЧТИ ЧИСТО! +',en:'NEAR CLEAR! +'},
-  megaFall:{ru:'МЕГА ОБРЫВ! +',en:'MEGA DROP! +'},
-  victory:{ru:'ПОЛНАЯ ОЧИСТКА!',en:'COMPLETE CLEAR!'},
+  megaFall:{ru:'МЕГА ОБРЫВ! +',en:'MEGA FALL! +'},
+  victory:{ru:'ПОЛНАЯ ОЧИСТКА!',en:'PERFECT CLEAR!'},
   victoryPts:{ru:'+100 000 БОНУС!',en:'+100 000 BONUS!'},
-  victoryTip:{ru:'Полная очистка — поле очищено!',en:'Complete clear — field cleared!'},
+  victoryTip:{ru:'Полная очистка — поле очищено!',en:'Perfect clear — board cleared!'},
   gamepad:{ru:'Геймпад подключён',en:'Gamepad connected'},
   pause:{ru:'ПАУЗА',en:'PAUSE'},
   pauseHint:{ru:'коснись чтобы продолжить',en:'tap to resume'},
-  restartQ:{ru:'Начать заново?',en:'Start over?'},
+  restartQ:{ru:'Начать заново?',en:'Restart?'},
   restartYes:{ru:'ДА',en:'YES'},
   restartHint:{ru:'A — да, B — нет',en:'A — yes, B — no'},
 };
@@ -757,6 +757,7 @@ function buildTitle(){
 
 function updateLangBtn(){
   document.getElementById('lang-btn').textContent=state.lang==='ru'?'EN':'RU';
+  document.title=state.lang==='ru'?'КУБОПАД':'CubeFall';
 }
 
 function updateSoundBtn(){
@@ -1286,6 +1287,7 @@ function render(now){
   requestAnimationFrame(render);
 })();
 </script>
+
 <script>
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
 </script>
