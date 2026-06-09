@@ -10,36 +10,46 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<title>КУБОПАД</title>
+<title>CUBEFALL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d0d0d;color:#fff;font-family:"Courier New",Courier,monospace;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;user-select:none;overflow:hidden;padding:8px 12px;gap:4px}
-#title-row{display:flex;align-items:flex-end;justify-content:center;gap:4px;animation:titleGlow 3s ease-in-out infinite;will-change:filter}
-@keyframes titleGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(252,228,168,.4)) drop-shadow(0 0 20px rgba(252,228,168,.2))}50%{filter:drop-shadow(0 0 14px rgba(252,228,168,.6)) drop-shadow(0 0 30px rgba(252,228,168,.3))}}
-.char-grid{display:grid;gap:1px}
-.char-grid>div{width:7px;height:7px;border-radius:2px}
-.char-fallback{color:inherit;font-size:1.5rem;font-family:"Courier New",monospace;font-weight:bold;line-height:1}
-#game-area{display:flex;gap:16px;align-items:flex-start;margin-top:12px}
-#canvas-wrap{position:relative}
-#cv{display:block;border-radius:4px}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:10;border-radius:4px}
-.bonus-text{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);z-index:20;pointer-events:none;font-size:1.2rem;font-weight:bold;font-family:"Courier New",monospace;color:#fff;white-space:nowrap;text-shadow:0 0 3px #000,2px 2px 4px rgba(0,0,0,.9),-2px -2px 4px rgba(0,0,0,.9),0 0 18px rgba(252,228,168,.7),0 0 40px rgba(252,228,168,.35)}
-.play-btn{padding:10px 28px;background:linear-gradient(135deg,#fce4a8,#b8e8c8);color:#1a1a2e;border:none;font-family:"Courier New",monospace;font-size:1rem;font-weight:bold;cursor:pointer;border-radius:8px;box-shadow:0 2px 12px rgba(252,228,168,.3);transition:transform .1s,box-shadow .2s}
-.play-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(252,228,168,.5)}
-#right-col{display:flex;flex-direction:column;gap:8px;min-width:110px;max-width:130px}
-#right-col .play-btn{width:100%;padding:8px 0;font-size:.8rem}
-#right-col .btn-row{display:flex;gap:6px}
-#right-col .tbtn{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#888;font-family:inherit;font-size:.6rem;font-weight:bold;letter-spacing:.08em;padding:6px 0;cursor:pointer;transition:background .15s,color .15s;text-align:center}
-#right-col .tbtn:hover{background:rgba(255,255,255,.1);color:#ccc}
-#right-col .tbtn.sound-on{background:rgba(252,228,168,.08);border-color:rgba(252,228,168,.2);color:#fce4a8}
-#right-col .tbtn.sound-off{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#666}
-#score-box,#time-box{background:rgba(20,20,30,.75);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:8px 10px}
-#score-box .label,#time-box .label{font-size:.6rem;color:#888;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px}
-#score-box .val,#time-box .val{font-size:1.1rem;font-weight:bold;color:#fff;font-variant-numeric:tabular-nums}
+body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;user-select:none;overflow:hidden;padding:16px;gap:16px}
+.top-bar{display:flex;align-items:flex-end;justify-content:center;width:100%;position:relative}
+.title-row{display:flex;align-items:center;justify-content:center;gap:5px}
+.title-cube{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;font-family:'Inter',sans-serif;font-weight:900;font-size:22px;color:#fff;border-radius:5px;text-shadow:1px 1px 2px rgba(0,0,0,.4);position:relative;user-select:none;outline:1px solid rgba(255,255,255,.25);outline-offset:-2px}
+.title-cube::before{content:'';position:absolute;top:2px;left:2px;right:2px;height:36%;background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 100%);border-radius:3px 3px 0 0;pointer-events:none}
+.title-cube::after{content:'';position:absolute;bottom:2px;left:2px;right:2px;height:33%;background:linear-gradient(0deg,rgba(0,0,0,.2) 0%,transparent 100%);border-radius:0 0 3px 3px;pointer-events:none}
+.btn-row{display:flex;gap:6px}
+.tbtn{flex:1;background:rgba(20,20,30,.75);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#888;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:bold;letter-spacing:.08em;padding:6px 0;cursor:pointer;transition:background .15s,color .15s;text-align:center}
+.tbtn:hover{background:rgba(255,255,255,.1);color:#ccc}
+.tbtn.sound-on{background:rgba(200,168,232,.08);border-color:rgba(200,168,232,.2);color:#c8a8e8}
+.tbtn.sound-off{background:rgba(20,20,30,.75);border-color:rgba(255,255,255,.08);color:#666}
+.tbtn.pause-on{background:rgba(200,168,232,.08);border-color:rgba(200,168,232,.2);color:#c8a8e8}
+/* game frame */
+.game-frame{position:relative;border:2px solid #555;border-radius:16px;padding:16px 20px 20px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;gap:32px}
+.game-frame::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:130px;height:4px;background:#0d0d0d;z-index:1}
+.frame-label{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);background:#0d0d0d;padding:0 5px;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.5px;color:#555;z-index:2;white-space:nowrap}
+.frame-label .bold{font-weight:700;color:#777}
+.main-row{display:flex;gap:24px;align-items:flex-start}
+.board-wrap{position:relative;border-radius:6px;padding:0;background:transparent;border:none}
+.board-wrap canvas{display:block;border-radius:6px;border:none}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:10;border-radius:6px}
+.overlay h2{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:8px}
+.bonus-text{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);z-index:20;pointer-events:none;font-size:1.2rem;font-weight:bold;font-family:'Inter',sans-serif;color:#fff;white-space:nowrap;text-shadow:0 0 3px #000,2px 2px 4px rgba(0,0,0,.9),-2px -2px 4px rgba(0,0,0,.9),0 0 18px rgba(252,228,168,.7),0 0 40px rgba(252,228,168,.35)}
+.overlay-btn{padding:12px 32px;border:none;font-weight:900;cursor:pointer;border-radius:6px;background:linear-gradient(180deg,#d4f4e0 0%,#b8e8c8 35%,#90d0a8 70%,#70b088 100%);color:#fff;font-family:'Inter',sans-serif;font-size:1.1rem;text-shadow:1px 1px 2px rgba(0,0,0,.3);outline:1px solid rgba(255,255,255,.25);outline-offset:-2px;box-shadow:0 3px 6px rgba(0,0,0,.3);transition:transform .15s}
+.overlay-btn:hover{transform:scale(1.05)}
+.overlay-btn.small{padding:8px 16px;font-size:.8rem;width:100%}
+.right-panel{display:flex;flex-direction:column;gap:10px;min-width:150px}
+.stat-box{border-radius:6px;padding:10px;background:rgba(20,20,30,.75);border:1px solid rgba(255,255,255,.08)}
+.stat-box .label{text-transform:uppercase;font-size:.65rem;color:#888;letter-spacing:.15em;margin-bottom:2px}
+.stat-box .val{font-weight:bold;font-size:1.1rem;color:#fff;font-variant-numeric:tabular-nums}
 .lb-wrap{width:90%;max-width:300px;margin-bottom:12px}
-.lb-title{font-size:.75rem;color:#fce4a8;text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:8px;font-family:"Courier New",monospace}
-.lb-empty{color:#555;font-size:.7rem;text-align:center;padding:12px 0;font-family:"Courier New",monospace}
-.lb-row{display:flex;gap:6px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:4px 6px;border-radius:3px;font-family:"Courier New",monospace}
+.lb-title{font-size:.75rem;color:#c8a8e8;text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:8px;font-family:'Inter',sans-serif}
+.lb-empty{color:#555;font-size:.7rem;text-align:center;padding:12px 0;font-family:'Inter',sans-serif}
+.lb-row{display:flex;gap:6px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:4px 6px;border-radius:3px;font-family:'Inter',sans-serif}
 .lb-row.even{background:rgba(255,255,255,.05)}
 .lb-row.hi{color:#fff;font-weight:bold}
 .lb-row:not(.hi){color:#ccc}
@@ -47,24 +57,31 @@ body{background:#0d0d0d;color:#fff;font-family:"Courier New",Courier,monospace;d
 .lb-row .sc{font-variant-numeric:tabular-nums}
 .lb-row .tm{color:#b8e8c8;font-size:.6rem;font-variant-numeric:tabular-nums}
 .lb-row .dt{color:#666;font-size:.55rem;margin-left:auto}
-.go-title{font-size:1.3rem;margin-bottom:6px;color:#f0a8b8;font-family:inherit}
-.victory-title{font-size:1.8rem;margin-bottom:8px;color:#fce4a8;font-family:inherit;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
+.go-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px;color:#f0a8b8}
+.victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;margin-bottom:8px;color:#fce4a8;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
 @keyframes vicGlow{0%,100%{text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3)}50%{text-shadow:0 0 30px rgba(252,228,168,.8),0 0 60px rgba(252,228,168,.4),0 0 80px rgba(252,228,168,.2)}}
-.vic-icon{color:#fce4a8;cursor:help;font-size:.75rem;margin-right:3px;text-shadow:0 0 6px rgba(252,228,168,.5);position:relative}
-.vic-icon:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.95);border:1px solid rgba(252,228,168,.3);border-radius:4px;padding:4px 8px;font-size:.6rem;color:#fce4a8;white-space:nowrap;pointer-events:none;z-index:99}
+.lb-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lb-dot.norm{background:rgba(255,255,255,.35)}
+.lb-dot.vic{background:#fce4a8;box-shadow:0 0 6px rgba(252,228,168,.5);cursor:help;position:relative}
+.lb-dot.vic:hover::after{content:attr(data-tip);position:absolute;bottom:140%;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.95);border:1px solid rgba(252,228,168,.3);border-radius:4px;padding:4px 8px;font-size:.6rem;color:#fce4a8;white-space:nowrap;pointer-events:none;z-index:99}
 .gp-indicator{position:absolute;bottom:8px;left:8px;z-index:15;pointer-events:none;font-size:.55rem;color:#888}
 #pause-overlay{background:rgba(10,10,16,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.pause-title{font-size:1.8rem;font-weight:bold;color:#fce4a8;font-family:inherit;text-shadow:0 0 16px rgba(252,228,168,.5),0 0 32px rgba(252,228,168,.25)}
-.pause-hint{margin-top:12px;font-size:.7rem;color:#888;font-family:inherit}
-.restart-title{font-size:1.1rem;color:#f0a8b8;font-family:inherit;margin-bottom:12px}
-.restart-hint{font-size:.65rem;color:#888;font-family:inherit;margin-top:10px}
+.pause-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;color:#c8a8e8;animation:pulse 1s ease-in-out infinite}
+.pause-hint{margin-top:12px;font-size:.7rem;color:#888;font-family:'Inter',sans-serif}
+.restart-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.1rem;color:#f0a8b8;margin-bottom:12px}
+.restart-hint{font-size:.65rem;color:#888;font-family:'Inter',sans-serif;margin-top:10px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse-anim{animation:pulse 1s ease-in-out infinite}
 svg{display:inline-block;vertical-align:middle}
 </style>
 </head>
 <body>
-<div id="title-row"></div>
-<div id="game-area">
-  <div id="canvas-wrap">
+<div class="game-frame">
+<div class="top-bar">
+  <div id="titleRow" class="title-row"></div>
+</div>
+<div class="main-row">
+  <div class="board-wrap" id="canvas-wrap">
     <canvas id="cv"></canvas>
     <span class="gp-indicator" id="gpIndicator"></span>
     <div id="bonus-el" class="bonus-text" style="display:none"></div>
@@ -79,32 +96,34 @@ svg{display:inline-block;vertical-align:middle}
       <div class="victory-title" id="vic-title"></div>
       <div id="vic-lb" class="lb-wrap"></div>
     </div>
-    <div id="pause-overlay" class="overlay" style="display:none">
+    <div id="pause-overlay" class="overlay" style="display:none;cursor:pointer">
       <div class="pause-title" id="pause-title"></div>
       <div class="pause-hint" id="pause-hint"></div>
     </div>
     <div id="restart-overlay" class="overlay" style="display:none">
       <div class="restart-title" id="restart-title"></div>
-      <button class="play-btn" id="restart-yes-btn"></button>
+      <button class="overlay-btn" id="restart-yes-btn"></button>
       <div class="restart-hint" id="restart-hint"></div>
     </div>
   </div>
-  <div id="right-col">
+  <div class="right-panel">
     <div class="btn-row">
       <button class="tbtn" id="pause-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
       <button class="tbtn" id="lang-btn"></button>
       <button class="tbtn" id="sound-btn"></button>
     </div>
-    <div id="score-box">
+    <div class="stat-box" id="score-box">
       <div class="label" id="score-label"></div>
       <div class="val" id="score-val">0</div>
     </div>
-    <div id="time-box">
+    <div class="stat-box" id="time-box">
       <div class="label" id="time-label"></div>
       <div class="val" id="time-val">0:00</div>
     </div>
-    <button class="play-btn" id="play-btn" style="display:none"></button>
+    <button class="overlay-btn small" id="play-btn" style="display:none"></button>
   </div>
+</div>
+<div class="frame-label">conceptual<span class="bold">project</span></div>
 </div>
 <script>
 // ═══════════════════════════════════════════════════
@@ -134,29 +153,7 @@ var COLORS = [
   { base:'#f0b8c0', light:'#f8d4d8', mid:'#e09098', dark:'#c87078', glow:[240,184,192] },
 ];
 
-// ═══════════════════════════════════════════════════
-// PIXEL MAPS
-// ═══════════════════════════════════════════════════
-var PM = {
-  'К':[[1,0,0,0,1],[1,0,0,1,0],[1,1,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],
-  'У':[[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,0,0,0]],
-  'Б':[[1,1,1,1,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0]],
-  'О':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-  'П':[[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
-  'А':[[0,1,1,1,0],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],
-  'Д':[[0,1,1,1,0],[0,1,0,1,0],[0,1,0,1,0],[0,1,0,1,0],[1,1,1,1,1]],
-  'C':[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,0],[1,0,0,0,1],[0,1,1,1,0]],
-  'U':[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-  'B':[[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0]],
-  'E':[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,1,1,1]],
-  'F':[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],
-  'A':[[0,1,1,1,0],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],
-  'L':[[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
-};
-
-var TITLE_RU = [{ch:'К'},{ch:'У'},{ch:'Б'},{ch:'О'},{ch:'П'},{ch:'А'},{ch:'Д'}];
-var TITLE_EN = [{ch:'C'},{ch:'U'},{ch:'B'},{ch:'E'},{ch:'F'},{ch:'A'},{ch:'L'},{ch:'L'}];
-var TITLE_COLORS_LIST = [COLORS[0],COLORS[1],COLORS[2],COLORS[3],COLORS[4],COLORS[0],COLORS[1]];
+var TITLE_PIECE_COLORS = [COLORS[0],COLORS[1],COLORS[2],COLORS[3],COLORS[4],COLORS[0],COLORS[1],COLORS[2]];
 
 // ═══════════════════════════════════════════════════
 // LOCALIZATION
@@ -355,47 +352,53 @@ function addLBScore(sc,sec,lang,vic){
 // ═══════════════════════════════════════════════════
 // CANVAS DRAWING
 // ═══════════════════════════════════════════════════
-function rrect(ctx,x,y,w,h,r){
+function rrect(ctx,x,y,w,h,radii){
+  var tl,tr,br,bl;
+  if(Array.isArray(radii)){tl=radii[0];tr=radii[1];br=radii[2];bl=radii[3]}
+  else{tl=tr=br=bl=radii}
   ctx.beginPath();
-  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.moveTo(x+tl,y); ctx.lineTo(x+w-tr,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+tr);
+  ctx.lineTo(x+w,y+h-br);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-br,y+h);
+  ctx.lineTo(x+bl,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-bl);
+  ctx.lineTo(x,y+tl);
+  ctx.quadraticCurveTo(x,y,x+tl,y);
   ctx.closePath();
 }
 
 function drawCube(ctx,px,py,ci,sz,sel,alpha){
   var co=COLORS[ci],r=4;
-  ctx.save();
-  ctx.globalAlpha=alpha;
+  ctx.save();ctx.globalAlpha=alpha;
+  // Main gradient fill
   var g=ctx.createLinearGradient(px,py,px,py+sz);
-  g.addColorStop(0,co.light);g.addColorStop(0.35,co.base);
-  g.addColorStop(0.7,co.mid);g.addColorStop(1,co.dark);
+  g.addColorStop(0,co.light);g.addColorStop(.35,co.base);
+  g.addColorStop(.7,co.mid);g.addColorStop(1,co.dark);
   ctx.fillStyle=g;
-  rrect(ctx,px+0.5,py+0.5,sz-1,sz-1,r);ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;
-  rrect(ctx,px+1.5,py+1.5,sz-3,sz-3,r-0.5);ctx.stroke();
-  var sh=sz*0.38;
-  ctx.globalAlpha=0.45*alpha;
-  var sg=ctx.createLinearGradient(px,py,px,py+sh);
-  sg.addColorStop(0,'rgba(255,255,255,0.7)');sg.addColorStop(1,'rgba(255,255,255,0)');
+  rrect(ctx,px+.5,py+.5,sz-1,sz-1,r);ctx.fill();
+  // Inner white border
+  ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
+  rrect(ctx,px+1.5,py+1.5,sz-3,sz-3,r-.5);ctx.stroke();
+  // Shine (top highlight)
+  var shineH=sz*.36;
+  ctx.globalAlpha=.45;
+  var sg=ctx.createLinearGradient(px,py,px,py+shineH);
+  sg.addColorStop(0,'rgba(255,255,255,.45)');sg.addColorStop(1,'rgba(255,255,255,0)');
   ctx.fillStyle=sg;
-  ctx.beginPath();ctx.rect(px+2,py+2,sz-4,sh);ctx.fill();
-  ctx.globalAlpha=0.6*alpha;ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.ellipse(px+sz*0.28,py+sz*0.22,sz*0.08,sz*0.05,-0.3,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=0.15*alpha;
-  var bg=ctx.createLinearGradient(px,py+sz*0.65,px,py+sz);
-  bg.addColorStop(0,'rgba(0,0,0,0)');bg.addColorStop(1,'rgba(0,0,0,0.5)');
+  rrect(ctx,px+2,py+2,sz-4,shineH,[r-1,r-1,0,0]);ctx.fill();
+  // Shadow (bottom)
+  ctx.globalAlpha=.3;
+  var bg=ctx.createLinearGradient(px,py+sz*.67,px,py+sz);
+  bg.addColorStop(0,'rgba(0,0,0,0)');bg.addColorStop(1,'rgba(0,0,0,.2)');
   ctx.fillStyle=bg;
-  ctx.beginPath();ctx.rect(px+2,py+sz*0.65,sz-4,sz*0.33);ctx.fill();
+  rrect(ctx,px+2,py+sz*.67,sz-4,sz*.31,[0,0,r-1,r-1]);ctx.fill();
+  ctx.globalAlpha=1;
+  // Selection highlight
   if(sel){
-    ctx.globalAlpha=0.4*alpha;ctx.fillStyle='#fff';
-    rrect(ctx,px+0.5,py+0.5,sz-1,sz-1,r);ctx.fill();
-    ctx.globalAlpha=0.9*alpha;ctx.strokeStyle='#fff';ctx.lineWidth=2;
+    ctx.globalAlpha=.4*alpha;ctx.fillStyle='#fff';
+    rrect(ctx,px+.5,py+.5,sz-1,sz-1,r);ctx.fill();
+    ctx.globalAlpha=.9*alpha;ctx.strokeStyle='#fff';ctx.lineWidth=2;
     rrect(ctx,px+1,py+1,sz-2,sz-2,r);ctx.stroke();
   }
   ctx.restore();
@@ -484,7 +487,6 @@ function playTone(freq,duration,volume,type){
   }catch(e){audioCtx=null;createAudioCtx()}
 }
 
-// Возобновление звука после пробуждения системы или возврата на вкладку
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden){initAudio()}
 });
@@ -533,7 +535,6 @@ function showBonus(txt,dur){
 // ═══════════════════════════════════════════════════
 function afterResolve(){
   var g=grid;
-  // Near-clear bonus: only 1 row has cubes left
   var occRows=0;
   for(var r=0;r<ROWS;r++){for(var c=0;c<COLS;c++){if(g[r][c]!==-1){occRows++;break}}}
   if(occRows===1&&!nearClearGiven){
@@ -543,7 +544,6 @@ function afterResolve(){
     sfx.nearClear();
   }
   if(occRows>1)nearClearGiven=false;
-  // Full clear — VICTORY!
   if(occRows===0){
     score+=100000;updateScore();
     active=false;
@@ -674,9 +674,10 @@ function renderLB(lb,hi,containerId){
       var cls='lb-row';
       if(i%2===0)cls+=' even';
       if(i===hi)cls+=' hi';
-      var vicIcon=lb[i].victory?'<span class="vic-icon" data-tip="'+l('victoryTip')+'">★</span>':'';
+      var dotCls=lb[i].victory?'lb-dot vic':'lb-dot norm';
+      var dotTip=lb[i].victory?' data-tip="'+l('victoryTip')+'"':'';
       var timeStr=lb[i].time!=null?formatTime(lb[i].time):'';
-      html+='<div class="'+cls+'"><span class="rank">'+(i+1)+'</span>'+vicIcon+'<span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
+      html+='<div class="'+cls+'"><span class="rank">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
     }
   }
   el.innerHTML=html;
@@ -717,47 +718,26 @@ function hideOverlays(){
   document.getElementById('play-btn').style.display='none';
 }
 
-function buildTitle(){
-  var chars=state.lang==='ru'?TITLE_RU:TITLE_EN;
-  var container=document.getElementById('title-row');
-  container.innerHTML='';
-  var ci=0;
-  for(var i=0;i<chars.length;i++){
-    var tc=chars[i];
-    var map=PM[tc.ch];
-    var co=TITLE_COLORS_LIST[ci%TITLE_COLORS_LIST.length];ci++;
-    if(!map){
-      var span=document.createElement('span');
-      span.className='char-fallback';
-      span.style.color=co.base;
-      span.textContent=tc.ch;
-      container.appendChild(span);
-      continue;
-    }
-    var cols=map[0].length;
-    var div=document.createElement('div');
-    div.className='char-grid';
-    div.style.gridTemplateColumns='repeat('+cols+',7px)';
-    for(var ri=0;ri<map.length;ri++){
-      for(var cci=0;cci<cols;cci++){
-        var on=map[ri][cci];
-        var cell=document.createElement('div');
-        if(on){
-          cell.style.background='linear-gradient(180deg,'+co.light+' 0%,'+co.base+' 35%,'+co.mid+' 70%,'+co.dark+' 100%)';
-          cell.style.boxShadow='inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.25)';
-        }else{
-          cell.style.background='transparent';
-        }
-        div.appendChild(cell);
-      }
-    }
-    container.appendChild(div);
+function renderTitle(){
+  var row=document.getElementById('titleRow');
+  row.innerHTML='';
+  var titleStr='CUBEFALL';
+  for(var i=0;i<titleStr.length;i++){
+    var ch=titleStr[i];
+    if(ch===' '){var sp=document.createElement('div');sp.style.width='10px';row.appendChild(sp);continue;}
+    var co=TITLE_PIECE_COLORS[i%TITLE_PIECE_COLORS.length];
+    var cube=document.createElement('div');
+    cube.className='title-cube';
+    cube.textContent=ch;
+    cube.style.background='linear-gradient(180deg,'+co.light+' 0%,'+co.base+' 35%,'+co.mid+' 70%,'+co.dark+' 100%)';
+    cube.style.boxShadow='0 3px 6px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2)';
+    row.appendChild(cube);
   }
 }
 
 function updateLangBtn(){
   document.getElementById('lang-btn').textContent=state.lang==='ru'?'EN':'RU';
-  document.title=state.lang==='ru'?'КУБОПАД':'CubeFall';
+  document.title='CUBEFALL';
 }
 
 function updateSoundBtn(){
@@ -866,7 +846,6 @@ function pollGamepad(dt){
   var gpJustPressed=function(idx){
     return(gp.buttons[idx]&&gp.buttons[idx].pressed||false)&&!(gpPrevState&&gpPrevState.buttons[idx]||false);
   };
-  // Aim with left stick / D-pad
   var ax=gp.axes[0]||0, ay=gp.axes[1]||0;
   var deadzone=0.2;
   if(Math.abs(ax)<deadzone)ax=0;
@@ -887,7 +866,6 @@ function pollGamepad(dt){
       trajPreview=calculateTrajectory(grid,gpAimX,gpAimY);
     }
   }
-  // A button (0): Shoot / Confirm restart / Start from overlay
   if(gpJustPressed(0)){
     initAudio();
     if(restartConfirm){
@@ -896,14 +874,12 @@ function pollGamepad(dt){
       paused=false;document.getElementById('pause-overlay').style.display='none';updatePauseBtn();
       startGame();
     }else if(paused){
-      // ignore A while paused (not in restart confirm)
     }else if(!active||phase.type!=='idle'){
       if(state.overlay==='start'||state.overlay==='gameover'||state.overlay==='victory')startGame();
     }else if(gpAimActive&&mousePos&&mousePos.y<BH){
       gpShootAt(mousePos.x,mousePos.y);
     }
   }
-  // B button (1): Swap colors / Cancel restart confirm
   if(gpJustPressed(1)){
     if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
     if(active&&phase.type==='idle'&&!paused){
@@ -912,7 +888,6 @@ function pollGamepad(dt){
       swapAnim=performance.now();sfx.swap();
     }
   }
-  // Start button (9): Pause / Unpause / Start game / Cancel restart confirm
   if(gpJustPressed(9)){
     initAudio();
     if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
@@ -920,7 +895,6 @@ function pollGamepad(dt){
     else if(paused){togglePause()}
     else if(active){togglePause()}
   }
-  // Select button (8): Show restart confirmation
   if(gpJustPressed(8)){
     initAudio();
     if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
@@ -1008,13 +982,9 @@ function updatePauseBtn(){
   var btn=document.getElementById('pause-btn');
   if(!btn)return;
   if(paused){
-    btn.style.background='rgba(252,228,168,.08)';
-    btn.style.borderColor='rgba(252,228,168,.2)';
-    btn.style.color='#fce4a8';
+    btn.className='tbtn pause-on';
   }else{
-    btn.style.background='rgba(255,255,255,.05)';
-    btn.style.borderColor='rgba(255,255,255,.1)';
-    btn.style.color='#888';
+    btn.className='tbtn';
   }
 }
 
@@ -1037,19 +1007,15 @@ function render(now){
   lastT=now;
   var ph=phase;
 
-  // Gamepad (always poll even when paused, so Start/Select can unpause)
   if(gpConnected)pollGamepad(dt);
 
-  // Phase transitions (skip when paused)
   if(paused){requestAnimationFrame(render);return}
-  // Update timer display
   updateTime();
   if(ph.type==='shooting'&&now-ph.t0>=ph.dur)afterShoot();
   else if(ph.type==='removing'&&now-ph.t0>=ph.dur)afterRemove();
   else if(ph.type==='disconnect'&&now-ph.t0>=ph.dur)afterDisconnect();
   else if(ph.type==='descending'&&now-ph.t0>=ph.dur)afterDescend();
 
-  // Update particles
   var w=0;
   for(var i=0;i<particles.length;i++){
     var p=particles[i];
@@ -1061,18 +1027,16 @@ function render(now){
   // ─── DRAW ───
   ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
 
-  // Grid background
+  // Full canvas background
   ctx.fillStyle='#0e0e18';
-  ctx.fillRect(0,0,BW,BH);
+  ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
 
   // Grid lines
   ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
   for(var r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,GAP/2+r*CELL_FULL);ctx.lineTo(BW,GAP/2+r*CELL_FULL);ctx.stroke()}
   for(var c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(GAP/2+c*CELL_FULL,0);ctx.lineTo(GAP/2+c*CELL_FULL,BH);ctx.stroke()}
 
-  // Grid border
-  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=2;
-  ctx.strokeRect(0,0,BW,BH);
+  // Grid border — handled by .board-wrap CSS
 
   // Danger zone (bottom 3 rows)
   var dangerStart=ROWS-3;
@@ -1126,18 +1090,15 @@ function render(now){
       var py=GAP+r*CELL_FULL;
       var alpha=1,sz=CELL;
 
-      // Removing animation
       if(ph.type==='removing'&&ph.cells.has(r+','+c)){
         var prog=Math.min((now-ph.t0)/ph.dur,1);
         alpha=1-prog;sz=CELL*(1-prog*0.3);
         var offset=(CELL-sz)/2;px+=offset;py+=offset;
       }
-      // Disconnect animation
       if(ph.type==='disconnect'&&ph.cells.has(r+','+c)){
         var prog=Math.min((now-ph.t0)/ph.dur,1);
         alpha=1-prog;py+=prog*CELL_FULL*2;
       }
-      // Descending animation
       if(ph.type==='descending'){
         var prog=ease(Math.min((now-ph.t0)/ph.dur,1));
         py-=(1-prog)*CELL_FULL;
@@ -1255,10 +1216,9 @@ function render(now){
   document.getElementById('lang-btn').addEventListener('click',function(){
     state.lang=state.lang==='ru'?'en':'ru';
     try{localStorage.setItem(LANG_KEY,state.lang)}catch(e){}
-    buildTitle();updateLangBtn();
+    renderTitle();updateLangBtn();
     document.getElementById('score-label').textContent=l('score');
     document.getElementById('time-label').textContent=l('time');
-    // Re-render current overlay labels
     if(state.overlay==='start'){document.getElementById('play-btn').textContent=l('play');renderLB(state.uiLB,-1,'start-lb')}
     if(state.overlay==='gameover'){document.getElementById('go-title').textContent=l('gameOver');document.getElementById('play-btn').textContent=l('play');renderLB(state.uiLB,state.uiHi,'go-lb')}
     if(state.overlay==='victory'){document.getElementById('vic-title').textContent=l('victory');document.getElementById('play-btn').textContent=l('play');renderLB(state.uiLB,state.uiHi,'vic-lb')}
@@ -1275,7 +1235,7 @@ function render(now){
   });
 
   // Build UI
-  buildTitle();
+  renderTitle();
   updateLangBtn();
   updateSoundBtn();
   document.getElementById('score-label').textContent=l('score');
@@ -1292,4 +1252,4 @@ function render(now){
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
 </script>
 </body>
-</html>                                              
+</html
