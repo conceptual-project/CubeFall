@@ -1031,20 +1031,14 @@ function render(now){
   ctx.fillStyle='#0e0e18';
   ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
 
-  // Grid lines
+  // Grid lines (extend through launcher area)
   ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
   for(var r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,GAP/2+r*CELL_FULL);ctx.lineTo(BW,GAP/2+r*CELL_FULL);ctx.stroke()}
-  for(var c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(GAP/2+c*CELL_FULL,0);ctx.lineTo(GAP/2+c*CELL_FULL,BH);ctx.stroke()}
+  for(var c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(GAP/2+c*CELL_FULL,0);ctx.lineTo(GAP/2+c*CELL_FULL,CANVAS_H);ctx.stroke()}
 
   // Grid border — handled by .board-wrap CSS
 
-  // Danger zone (bottom 3 rows)
-  var dangerStart=ROWS-3;
-  for(var r=dangerStart;r<ROWS;r++){
-    var alpha=0.02+(r-dangerStart)*0.02;
-    ctx.fillStyle='rgba(240,100,100,'+alpha+')';
-    ctx.fillRect(0,GAP+r*CELL_FULL,BW,CELL);
-  }
+  // Danger zone removed — was causing non-uniform background
 
   // Trajectory preview (hover)
   var preview=trajPreview;
@@ -1130,11 +1124,7 @@ function render(now){
     drawCube(ctx,sx-CELL/2,sy-CELL/2,ph.color,CELL,true,1);
   }
 
-  // Launcher area
-  ctx.fillStyle='#0a0a10';
-  ctx.fillRect(0,BH,BW,LAUNCHER_H);
-  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(0,BH);ctx.lineTo(BW,BH);ctx.stroke();
+  // Launcher area (no separator — same background as grid)
 
   // Current cube in launcher
   var lcx=BW/2-CELL/2;
