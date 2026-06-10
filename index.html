@@ -59,10 +59,9 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .go-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px;color:#f0a8b8}
 .victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;margin-bottom:8px;color:#fce4a8;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
 @keyframes vicGlow{0%,100%{text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3)}50%{text-shadow:0 0 30px rgba(252,228,168,.8),0 0 60px rgba(252,228,168,.4),0 0 80px rgba(252,228,168,.2)}}
-.lbDot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.lbDot.norm{background:rgba(255,255,255,.35)}
-.lbDot.vic{background:#fce4a8;box-shadow:0 0 6px rgba(252,228,168,.5);cursor:help;position:relative}
-.lbDot.vic:hover::after{content:attr(data-tip);position:absolute;bottom:140%;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.95);border:1px solid rgba(252,228,168,.3);border-radius:4px;padding:4px 8px;font-size:.6rem;color:#fce4a8;white-space:nowrap;pointer-events:none;z-index:99}
+.lbDot{display:inline-block;flex-shrink:0}
+.lbDot.norm{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35)}
+.lbDot.vic{color:#fce4a8;font-size:10px;line-height:1;text-shadow:0 0 6px rgba(252,228,168,.5)}
 .gp-indicator{position:absolute;bottom:8px;left:8px;z-index:15;pointer-events:none;font-size:.55rem;color:#888}
 #pause-overlay{background:rgba(10,10,16,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .pause-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;color:#c8a8e8;animation:pulse 1s ease-in-out infinite}
@@ -168,7 +167,6 @@ var LOC = {
   megaFall:{ru:'МЕГА ОБРЫВ! +',en:'MEGA FALL! +'},
   victory:{ru:'ПОЛНАЯ ОЧИСТКА!',en:'PERFECT CLEAR!'},
   victoryPts:{ru:'+100 000 БОНУС!',en:'+100 000 BONUS!'},
-  victoryTip:{ru:'победа',en:'win'},
   gamepad:{ru:'Геймпад подключён',en:'Gamepad connected'},
   pause:{ru:'ПАУЗА',en:'PAUSE'},
   pauseHint:{ru:'коснись чтобы продолжить',en:'tap to resume'},
@@ -673,9 +671,9 @@ function renderLB(lb,hi,containerId){
       var rankColor=i===0?'#c8a8e8':i===1?'#d0d0d0':i===2?'#d4a574':'#888';
       var isVic=!!lb[i].victory;
       var dotCls=isVic?'lbDot vic':'lbDot norm';
-      var dotTip=isVic?' data-tip="'+l('victoryTip')+'"':'';
+      var dotContent=isVic?'★':'';
       var timeStr=lb[i].time!=null?formatTime(lb[i].time):'';
-      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
+      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span><span class="'+dotCls+'">'+dotContent+'</span><span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
     }
   }
   el.innerHTML=html;
