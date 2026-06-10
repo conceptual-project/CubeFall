@@ -48,13 +48,13 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .lb{width:85%;max-width:320px;max-height:220px;overflow-y:auto;margin-bottom:12px;scrollbar-width:thin;scrollbar-color:rgba(200,168,232,.3) transparent}
 .lbTitle{font-family:'Inter',sans-serif;font-size:.7rem;color:#c8a8e8;text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:8px}
 .lbEmpty{color:#555;font-size:.65rem;text-align:center;padding:10px 0;font-family:'Inter',sans-serif}
-.lbRow{display:grid;grid-template-columns:18px 7px 52px 36px auto;gap:8px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:2px 6px;border-radius:3px;font-family:'Inter',sans-serif}
+.lbRow{display:grid;grid-template-columns:18px 7px 48px 32px auto;gap:6px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:2px 6px;border-radius:3px;font-family:'Inter',sans-serif}
 .lbRow.even{background:rgba(255,255,255,.03)}
 .lbRow.hi{color:#fff;font-weight:bold}
 .lbRow:not(.hi){color:#ccc}
 .lbRow .rank{text-align:right;font-variant-numeric:tabular-nums}
 .lbRow .sc{font-weight:bold;font-variant-numeric:tabular-nums;text-align:left}
-.lbRow .tm{color:#b8e8c8;font-size:.6rem;font-variant-numeric:tabular-nums}
+.lbRow .tm{color:#b8e8c8;font-size:.65rem;font-variant-numeric:tabular-nums;text-align:left}
 .lbRow .dt{color:#555;font-size:.55rem;text-align:right}
 .go-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px;color:#f0a8b8}
 .victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;margin-bottom:8px;color:#fce4a8;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
@@ -168,7 +168,7 @@ var LOC = {
   megaFall:{ru:'МЕГА ОБРЫВ! +',en:'MEGA FALL! +'},
   victory:{ru:'ПОЛНАЯ ОЧИСТКА!',en:'PERFECT CLEAR!'},
   victoryPts:{ru:'+100 000 БОНУС!',en:'+100 000 BONUS!'},
-  victoryTip:{ru:'Полная очистка — поле очищено!',en:'Perfect clear — board cleared!'},
+  victoryTip:{ru:'Победитель',en:'Winner'},
   gamepad:{ru:'Геймпад подключён',en:'Gamepad connected'},
   pause:{ru:'ПАУЗА',en:'PAUSE'},
   pauseHint:{ru:'коснись чтобы продолжить',en:'tap to resume'},
@@ -675,7 +675,7 @@ function renderLB(lb,hi,containerId){
       var dotCls=isVic?'lbDot vic':'lbDot norm';
       var dotTip=isVic?' data-tip="'+l('victoryTip')+'"':'';
       var timeStr=lb[i].time!=null?formatTime(lb[i].time):'';
-      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span>'+(timeStr?'<span class="tm">'+timeStr+'</span>':'')+'<span class="dt">'+lb[i].date+'</span></div>';
+      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
     }
   }
   el.innerHTML=html;
