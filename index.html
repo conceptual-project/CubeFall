@@ -37,7 +37,6 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .board-wrap{position:relative;border-radius:6px;padding:0;background:transparent;border:none}
 .board-wrap canvas{display:block;border-radius:6px;border:none}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:10;border-radius:6px}
-.overlay h2{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:8px}
 .bonus-text{position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);z-index:20;pointer-events:none;font-size:1.2rem;font-weight:bold;font-family:'Inter',sans-serif;color:#fff;white-space:nowrap;text-shadow:0 0 3px #000,2px 2px 4px rgba(0,0,0,.9),-2px -2px 4px rgba(0,0,0,.9),0 0 18px rgba(252,228,168,.7),0 0 40px rgba(252,228,168,.35)}
 .overlay-btn{padding:12px 32px;border:none;font-weight:900;cursor:pointer;border-radius:6px;background:linear-gradient(180deg,#d4f4e0 0%,#b8e8c8 35%,#90d0a8 70%,#70b088 100%);color:#fff;font-family:'Inter',sans-serif;font-size:1.1rem;text-shadow:1px 1px 2px rgba(0,0,0,.3);outline:1px solid rgba(255,255,255,.25);outline-offset:-2px;box-shadow:0 3px 6px rgba(0,0,0,.3);transition:transform .15s}
 .overlay-btn:hover{transform:scale(1.05)}
@@ -46,24 +45,24 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .stat-box{border-radius:6px;padding:10px;background:rgba(20,20,30,.75);border:1px solid rgba(255,255,255,.08)}
 .stat-box .label{text-transform:uppercase;font-size:.65rem;color:#888;letter-spacing:.15em;margin-bottom:2px}
 .stat-box .val{font-weight:bold;font-size:1.1rem;color:#fff;font-variant-numeric:tabular-nums}
-.lb-wrap{width:90%;max-width:300px;margin-bottom:12px}
-.lb-title{font-size:.75rem;color:#c8a8e8;text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:8px;font-family:'Inter',sans-serif}
-.lb-empty{color:#555;font-size:.7rem;text-align:center;padding:12px 0;font-family:'Inter',sans-serif}
-.lb-row{display:flex;gap:6px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:4px 6px;border-radius:3px;font-family:'Inter',sans-serif}
-.lb-row.even{background:rgba(255,255,255,.05)}
-.lb-row.hi{color:#fff;font-weight:bold}
-.lb-row:not(.hi){color:#ccc}
-.lb-row .rank{min-width:18px;text-align:right;font-variant-numeric:tabular-nums}
-.lb-row .sc{font-variant-numeric:tabular-nums}
-.lb-row .tm{color:#b8e8c8;font-size:.6rem;font-variant-numeric:tabular-nums}
-.lb-row .dt{color:#666;font-size:.55rem;margin-left:auto}
+.lb{width:85%;max-width:320px;max-height:220px;overflow-y:auto;margin-bottom:12px;scrollbar-width:thin;scrollbar-color:rgba(200,168,232,.3) transparent}
+.lbTitle{font-family:'Inter',sans-serif;font-size:.7rem;color:#c8a8e8;text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:8px}
+.lbEmpty{color:#555;font-size:.65rem;text-align:center;padding:10px 0;font-family:'Inter',sans-serif}
+.lbRow{display:grid;grid-template-columns:18px 7px 52px 36px auto;gap:8px;align-items:center;margin-bottom:3px;font-size:.75rem;padding:2px 6px;border-radius:3px;font-family:'Inter',sans-serif}
+.lbRow.even{background:rgba(255,255,255,.03)}
+.lbRow.hi{color:#fff;font-weight:bold}
+.lbRow:not(.hi){color:#ccc}
+.lbRow .rank{text-align:right;font-variant-numeric:tabular-nums}
+.lbRow .sc{font-weight:bold;font-variant-numeric:tabular-nums;text-align:left}
+.lbRow .tm{color:#b8e8c8;font-size:.6rem;font-variant-numeric:tabular-nums}
+.lbRow .dt{color:#555;font-size:.55rem;text-align:right}
 .go-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px;color:#f0a8b8}
 .victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;margin-bottom:8px;color:#fce4a8;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
 @keyframes vicGlow{0%,100%{text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3)}50%{text-shadow:0 0 30px rgba(252,228,168,.8),0 0 60px rgba(252,228,168,.4),0 0 80px rgba(252,228,168,.2)}}
-.lb-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.lb-dot.norm{background:rgba(255,255,255,.35)}
-.lb-dot.vic{background:#fce4a8;box-shadow:0 0 6px rgba(252,228,168,.5);cursor:help;position:relative}
-.lb-dot.vic:hover::after{content:attr(data-tip);position:absolute;bottom:140%;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.95);border:1px solid rgba(252,228,168,.3);border-radius:4px;padding:4px 8px;font-size:.6rem;color:#fce4a8;white-space:nowrap;pointer-events:none;z-index:99}
+.lbDot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lbDot.norm{background:rgba(255,255,255,.35)}
+.lbDot.vic{background:#fce4a8;box-shadow:0 0 6px rgba(252,228,168,.5);cursor:help;position:relative}
+.lbDot.vic:hover::after{content:attr(data-tip);position:absolute;bottom:140%;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.95);border:1px solid rgba(252,228,168,.3);border-radius:4px;padding:4px 8px;font-size:.6rem;color:#fce4a8;white-space:nowrap;pointer-events:none;z-index:99}
 .gp-indicator{position:absolute;bottom:8px;left:8px;z-index:15;pointer-events:none;font-size:.55rem;color:#888}
 #pause-overlay{background:rgba(10,10,16,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .pause-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;color:#c8a8e8;animation:pulse 1s ease-in-out infinite}
@@ -71,7 +70,6 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .restart-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.1rem;color:#f0a8b8;margin-bottom:12px}
 .restart-hint{font-size:.65rem;color:#888;font-family:'Inter',sans-serif;margin-top:10px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.pulse-anim{animation:pulse 1s ease-in-out infinite}
 svg{display:inline-block;vertical-align:middle}
 </style>
 </head>
@@ -86,15 +84,15 @@ svg{display:inline-block;vertical-align:middle}
     <span class="gp-indicator" id="gpIndicator"></span>
     <div id="bonus-el" class="bonus-text" style="display:none"></div>
     <div id="start-overlay" class="overlay">
-      <div id="start-lb" class="lb-wrap"></div>
+      <div id="start-lb" class="lb"></div>
     </div>
     <div id="gameover-overlay" class="overlay" style="display:none">
       <div class="go-title" id="go-title"></div>
-      <div id="go-lb" class="lb-wrap"></div>
+      <div id="go-lb" class="lb"></div>
     </div>
     <div id="victory-overlay" class="overlay" style="display:none">
       <div class="victory-title" id="vic-title"></div>
-      <div id="vic-lb" class="lb-wrap"></div>
+      <div id="vic-lb" class="lb"></div>
     </div>
     <div id="pause-overlay" class="overlay" style="display:none;cursor:pointer">
       <div class="pause-title" id="pause-title"></div>
@@ -139,7 +137,7 @@ var CANVAS_H = BH + LAUNCHER_H;
 var NUM_COLORS = 5;
 var INIT_ROWS = 4;
 var LB_KEY = 'cubefall_lb';
-var LB_MAX = 10;
+var LB_MAX = 5;
 var LANG_KEY = 'cubefall_lang';
 var SOUND_KEY = 'cubefall_sound';
 var DESCEND_INTERVAL = 4;
@@ -161,7 +159,7 @@ var TITLE_PIECE_COLORS = [COLORS[0],COLORS[1],COLORS[2],COLORS[3],COLORS[4],COLO
 var LOC = {
   play:{ru:'ИГРАТЬ',en:'PLAY'},
   gameOver:{ru:'КОНЕЦ ИГРЫ',en:'GAME OVER'},score:{ru:'Счёт',en:'Score'},time:{ru:'Время',en:'Time'},
-  leaderboard:{ru:'Топ-10',en:'Top-10'},
+  leaderboard:{ru:'Топ-5',en:'Top-5'},
   noRecords:{ru:'Пока нет рекордов',en:'No records yet'},
   fallBonus:{ru:'ОБРЫВ! +',en:'FALL BONUS! +'},
   freeShot:{ru:' БЕСПЛАТНЫЙ ХОД!',en:' FREE SHOT!'},fullCol:{ru:'СТОЛБЕЦ ПОЛОН',en:'COLUMN FULL'},
@@ -218,6 +216,7 @@ function addTopRow(grid){
   for(var c=0;c<COLS;c++){
     var forbidden=new Set();
     if(c>=2&&grid[0][c-1]!==-1&&grid[0][c-1]===grid[0][c-2])forbidden.add(grid[0][c-1]);
+    if(grid[1][c]!==-1&&grid[1][c]===grid[2][c])forbidden.add(grid[1][c]);
     var color=randomColor(),attempts=0;
     while(forbidden.has(color)&&attempts<20){color=randomColor();attempts++}
     grid[0][c]=color;
@@ -490,9 +489,7 @@ function playTone(freq,duration,volume,type){
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden){initAudio()}
 });
-if(typeof window.addEventListener==='function'){
-  window.addEventListener('pageshow',function(){initAudio()});
-}
+window.addEventListener('pageshow',function(){initAudio()});
 
 var sfx = {
   shoot:function(){playTone(300,0.06,0.06,'sine');setTimeout(function(){playTone(500,0.08,0.08,'sine')},30)},
@@ -549,8 +546,7 @@ function afterResolve(){
     active=false;
     var elapsed=gameElapsed+(performance.now()-gameStartTime)/1000;var res=addLBScore(score,elapsed,state.lang,true);state.uiLB=res.lb;state.uiHi=res.hi;
     showBonus(l('victoryPts'),3000);
-    sfx.nearClear();
-    setTimeout(function(){sfx.victory()},2000);
+    sfx.victory();
     setTimeout(function(){showOverlay('victory')},2500);
     phase={type:'idle'};return;
   }
@@ -666,18 +662,20 @@ function updateTime(){
 
 function renderLB(lb,hi,containerId){
   var el=document.getElementById(containerId);
-  var html='<div class="lb-title">'+l('leaderboard')+'</div>';
+  var html='<div class="lbTitle">'+l('leaderboard')+'</div>';
   if(lb.length===0){
-    html+='<div class="lb-empty">'+l('noRecords')+'</div>';
+    html+='<div class="lbEmpty">'+l('noRecords')+'</div>';
   }else{
     for(var i=0;i<lb.length;i++){
-      var cls='lb-row';
+      var cls='lbRow';
       if(i%2===0)cls+=' even';
       if(i===hi)cls+=' hi';
-      var dotCls=lb[i].victory?'lb-dot vic':'lb-dot norm';
-      var dotTip=lb[i].victory?' data-tip="'+l('victoryTip')+'"':'';
+      var rankColor=i===0?'#c8a8e8':i===1?'#d0d0d0':i===2?'#d4a574':'#888';
+      var isVic=!!lb[i].victory;
+      var dotCls=isVic?'lbDot vic':'lbDot norm';
+      var dotTip=isVic?' data-tip="'+l('victoryTip')+'"':'';
       var timeStr=lb[i].time!=null?formatTime(lb[i].time):'';
-      html+='<div class="'+cls+'"><span class="rank">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span><span class="tm">'+timeStr+'</span><span class="dt">'+lb[i].date+'</span></div>';
+      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span><span class="'+dotCls+'"'+dotTip+'></span><span class="sc">'+lb[i].score+'</span>'+(timeStr?'<span class="tm">'+timeStr+'</span>':'')+'<span class="dt">'+lb[i].date+'</span></div>';
     }
   }
   el.innerHTML=html;
@@ -1242,4 +1240,4 @@ function render(now){
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
 </script>
 </body>
-</html
+</html  
