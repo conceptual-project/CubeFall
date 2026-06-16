@@ -58,7 +58,9 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .lbRow .tm{color:#b8e8c8;font-size:.6rem;font-variant-numeric:tabular-nums}
 .lbRow .dt{color:#555;font-size:.55rem;margin-left:auto}
 .go-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:6px;color:#f0a8b8}
-.victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.8rem;margin-bottom:8px;color:#fce4a8;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
+.victory-title{font-family:'Inter',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;color:#fce4a8;white-space:nowrap;text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3);animation:vicGlow 1.5s ease-in-out infinite}
+.victory-star{font-size:2.4rem;color:#fce4a8;margin-bottom:6px;text-shadow:0 0 20px rgba(252,228,168,.7),0 0 40px rgba(252,228,168,.4);animation:vicStar 2s ease-in-out infinite}
+@keyframes vicStar{0%,100%{transform:scale(1);text-shadow:0 0 20px rgba(252,228,168,.7),0 0 40px rgba(252,228,168,.4)}50%{transform:scale(1.15);text-shadow:0 0 30px rgba(252,228,168,.9),0 0 60px rgba(252,228,168,.5),0 0 80px rgba(252,228,168,.3)}}
 @keyframes vicGlow{0%,100%{text-shadow:0 0 20px rgba(252,228,168,.6),0 0 40px rgba(252,228,168,.3)}50%{text-shadow:0 0 30px rgba(252,228,168,.8),0 0 60px rgba(252,228,168,.4),0 0 80px rgba(252,228,168,.2)}}
 .lbDot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .lbDot.norm{background:rgba(255,255,255,.35)}
@@ -91,6 +93,7 @@ svg{display:inline-block;vertical-align:middle}
       <div id="go-lb" class="lb"></div>
     </div>
     <div id="victory-overlay" class="overlay" style="display:none">
+      <div class="victory-star">★</div>
       <div class="victory-title" id="vic-title"></div>
       <div id="vic-lb" class="lb"></div>
     </div>
