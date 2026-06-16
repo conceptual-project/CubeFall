@@ -229,7 +229,7 @@ function calculateTrajectory(grid,targetX,targetY){
   var len=Math.sqrt(dx*dx+dy*dy);
   if(len<1)return null;
   dx/=len;dy/=len;
-  if(dy>=0)return null;
+  if(dy>=-0.001)return null; // near-horizontal aim → no valid trajectory
   var maxSlope=4.0;
   if(Math.abs(dx/dy)>maxSlope){
     dx=Math.sign(dx)*(-dy)*maxSlope;
@@ -681,6 +681,7 @@ function updateTime(){
   document.getElementById('time-val').textContent=formatTime(elapsed);
 }
 
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function renderLB(lb,hi,containerId){
   var el=document.getElementById(containerId);
   var html='<div class="lbTitle">'+l('leaderboard')+'</div>';
@@ -695,7 +696,7 @@ function renderLB(lb,hi,containerId){
       var isVic=!!lb[i].victory;
       var dotHTML=isVic?'<span class="lbDot vic">★</span>':'<span class="lbDot norm"></span>';
       var timeStr=lb[i].time!=null?formatTime(lb[i].time):'';
-      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span>'+dotHTML+'<span class="sc">'+lb[i].score+'</span>'+(timeStr?'<span class="tm">'+timeStr+'</span>':'')+'<span class="dt">'+lb[i].date+'</span></div>';
+      html+='<div class="'+cls+'"><span class="rank" style="color:'+rankColor+'">'+(i+1)+'</span>'+dotHTML+'<span class="sc">'+lb[i].score+'</span>'+(timeStr?'<span class="tm">'+esc(timeStr)+'</span>':'')+'<span class="dt">'+esc(lb[i].date)+'</span></div>';
     }
   }
   el.innerHTML=html;
@@ -945,7 +946,10 @@ function pollGamepad(dt){
     }else if(paused){
     }else if(!active||phase.type!=='idle'){
       if(state.overlay==='start'||state.overlay==='gameover'||state.overlay==='victory')startGame();
-    }else if(gpAimActive&&mousePos&&mousePos.y<BH){
+    }else if(mousePos&&mousePos.y<BH){
+      // Allow shooting even without prior stick movement —
+      // use default aim position if gpAimActive is still false
+      if(!gpAimActive){gpAimActive=true;mousePos={x:gpAimX,y:gpAimY};}
       shootAt(mousePos.x,mousePos.y);
     }
   }
