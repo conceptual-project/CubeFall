@@ -916,6 +916,11 @@ function pollGamepad(dt){
   var gp=null;
   for(var i=0;i<gamepads.length;i++){if(gamepads[i]){gp=gamepads[i];break}}
   if(!gp){gpPrevState=null;return}
+  // Fix: skip first frame after gamepad connect to avoid false presses
+  if(gpPrevState===null){
+    gpPrevState={buttons:Array.from(gp.buttons).map(function(b){return b.pressed}),axes:Array.from(gp.axes)};
+    return;
+  }
   var gpJustPressed=function(idx){
     return(gp.buttons[idx]&&gp.buttons[idx].pressed||false)&&!(gpPrevState&&gpPrevState.buttons[idx]||false);
   };
