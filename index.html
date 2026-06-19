@@ -358,101 +358,66 @@ var glassAtlas = null;
 var glassMode = false;
 
 function drawCubeToAtlas(actx, ci, co, px, py, sz, r, glass){
-  // Main gradient fill
-  var g=actx.createLinearGradient(px,py,px,py+sz);
   if(glass){
-    // Glass: lighter, more luminous gradient
-    g.addColorStop(0, co.light); g.addColorStop(.2, co.base);
-    g.addColorStop(.55, co.mid); g.addColorStop(.8, co.base);
-    g.addColorStop(1, co.dark);
+    // ═══ FROSTED GLASS ═══
+    // Base — desaturated, lighter
+    actx.save(); actx.globalAlpha=0.55;
+    var g=actx.createLinearGradient(px,py,px,py+sz);
+    g.addColorStop(0,co.light); g.addColorStop(.4,co.base);
+    g.addColorStop(.7,co.mid); g.addColorStop(1,co.dark);
+    actx.fillStyle=g;
+    rrect(actx,px+.5,py+.5,sz-1,sz-1,r); actx.fill();
+    actx.restore();
+    // Frosted overlay — white noise-like grain
+    actx.save(); actx.globalAlpha=0.35;
+    var fg=actx.createLinearGradient(px,py,px+sz,py+sz);
+    fg.addColorStop(0,'rgba(255,255,255,.4)');
+    fg.addColorStop(.3,'rgba(240,240,250,.15)');
+    fg.addColorStop(.6,'rgba(255,255,255,.3)');
+    fg.addColorStop(1,'rgba(245,240,255,.1)');
+    actx.fillStyle=fg;
+    rrect(actx,px+1,py+1,sz-2,sz-2,r); actx.fill();
+    actx.restore();
+    // Soft diffused top glow
+    actx.save(); actx.globalAlpha=0.4;
+    var sg=actx.createLinearGradient(px,py,px,py+sz*.55);
+    sg.addColorStop(0,'rgba(255,255,255,.5)'); sg.addColorStop(1,'rgba(255,255,255,0)');
+    actx.fillStyle=sg;
+    rrect(actx,px+2,py+2,sz-4,sz*.5,[r-1,r-1,0,0]); actx.fill();
+    actx.restore();
+    // Soft border
+    actx.strokeStyle='rgba(255,255,255,.35)'; actx.lineWidth=1;
+    rrect(actx,px+1.5,py+1.5,sz-3,sz-3,r-.5); actx.stroke();
+    // Bottom shadow
+    actx.save(); actx.globalAlpha=0.15;
+    var bg=actx.createLinearGradient(px,py+sz*.7,px,py+sz);
+    bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,.15)');
+    actx.fillStyle=bg;
+    rrect(actx,px+2,py+sz*.7,sz-4,sz*.28,[0,0,r-1,r-1]); actx.fill();
+    actx.restore();
   } else {
+    // ═══ NORMAL ═══
+    var g=actx.createLinearGradient(px,py,px,py+sz);
     g.addColorStop(0,co.light); g.addColorStop(.35,co.base);
     g.addColorStop(.7,co.mid); g.addColorStop(1,co.dark);
-  }
-  actx.fillStyle=g;
-  if(glass){ actx.save(); actx.globalAlpha=.72; }
-  rrect(actx,px+.5,py+.5,sz-1,sz-1,r); actx.fill();
-  if(glass){ actx.restore(); }
-  // Inner border
-  if(glass){
-    // Glass: bright double border for edge glow
-    actx.strokeStyle='rgba(255,255,255,.55)'; actx.lineWidth=1.5;
-    rrect(actx,px+1.5,py+1.5,sz-3,sz-3,r-.5); actx.stroke();
-    actx.strokeStyle='rgba(255,255,255,.18)'; actx.lineWidth=.5;
-    rrect(actx,px+3,py+3,sz-6,sz-6,r-1.5); actx.stroke();
-  } else {
+    actx.fillStyle=g;
+    rrect(actx,px+.5,py+.5,sz-1,sz-1,r); actx.fill();
     actx.strokeStyle='rgba(255,255,255,.25)'; actx.lineWidth=1;
     rrect(actx,px+1.5,py+1.5,sz-3,sz-3,r-.5); actx.stroke();
-  }
-  // Shine (top highlight)
-  var shineH=sz*(glass?.48:.36);
-  actx.save(); actx.globalAlpha=glass?.85:.45;
-  var sg=actx.createLinearGradient(px,py,px,py+shineH);
-  sg.addColorStop(0,'rgba(255,255,255,'+(glass?'.85':'.45')+')'); sg.addColorStop(1,'rgba(255,255,255,0)');
-  actx.fillStyle=sg;
-  rrect(actx,px+2,py+2,sz-4,shineH,[r-1,r-1,0,0]); actx.fill();
-  actx.restore();
-  if(glass){
-    // Glass: bright specular streak (diagonal light reflection)
-    actx.save();
-    actx.globalAlpha=.65;
-    var spG=actx.createLinearGradient(px+sz*.05,py+sz*.04,px+sz*.55,py+sz*.42);
-    spG.addColorStop(0,'rgba(255,255,255,0)');
-    spG.addColorStop(.3,'rgba(255,255,255,.6)');
-    spG.addColorStop(.5,'rgba(255,255,255,.9)');
-    spG.addColorStop(.7,'rgba(255,255,255,.4)');
-    spG.addColorStop(1,'rgba(255,255,255,0)');
-    actx.fillStyle=spG;
-    actx.beginPath();
-    actx.moveTo(px+sz*.12,py+sz*.06);
-    actx.lineTo(px+sz*.52,py+sz*.06);
-    actx.lineTo(px+sz*.18,py+sz*.48);
-    actx.lineTo(px+sz*.05,py+sz*.35);
-    actx.closePath();
-    actx.fill();
+    var shineH=sz*.36;
+    actx.save(); actx.globalAlpha=.45;
+    var sg=actx.createLinearGradient(px,py,px,py+shineH);
+    sg.addColorStop(0,'rgba(255,255,255,.45)'); sg.addColorStop(1,'rgba(255,255,255,0)');
+    actx.fillStyle=sg;
+    rrect(actx,px+2,py+2,sz-4,shineH,[r-1,r-1,0,0]); actx.fill();
     actx.restore();
-    // Glass: prismatic band (rainbow caustic)
-    var bandY=py+sz*.35, bandH=sz*.15;
-    actx.save(); actx.globalAlpha=.38;
-    var pg=actx.createLinearGradient(px+2,bandY,px+sz-2,bandY+bandH);
-    pg.addColorStop(0,'rgba(255,120,120,.7)');
-    pg.addColorStop(.14,'rgba(255,220,80,.7)');
-    pg.addColorStop(.28,'rgba(120,255,120,.7)');
-    pg.addColorStop(.42,'rgba(80,220,255,.7)');
-    pg.addColorStop(.57,'rgba(120,120,255,.7)');
-    pg.addColorStop(.71,'rgba(220,80,255,.7)');
-    pg.addColorStop(.85,'rgba(255,80,180,.7)');
-    pg.addColorStop(1,'rgba(255,120,120,.7)');
-    actx.fillStyle=pg;
-    rrect(actx,px+3,bandY,sz-6,bandH,[r-2,r-2,0,0]); actx.fill();
-    actx.restore();
-    // Glass: secondary caustic highlight below prismatic band
-    actx.save(); actx.globalAlpha=.22;
-    var cG=actx.createLinearGradient(px,py+sz*.52,px+sz,py+sz*.68);
-    cG.addColorStop(0,'rgba(255,255,255,0)');
-    cG.addColorStop(.4,'rgba(255,255,255,.5)');
-    cG.addColorStop(.6,'rgba(255,255,255,.5)');
-    cG.addColorStop(1,'rgba(255,255,255,0)');
-    actx.fillStyle=cG;
-    rrect(actx,px+4,py+sz*.52,sz-8,sz*.14,[0,0,r-2,r-2]); actx.fill();
-    actx.restore();
-    // Glass: subtle iridescent edge shimmer on left
-    actx.save(); actx.globalAlpha=.2;
-    var eG=actx.createLinearGradient(px,py+sz*.1,px+sz*.15,py+sz*.9);
-    eG.addColorStop(0,'rgba(180,200,255,.6)');
-    eG.addColorStop(.5,'rgba(200,180,255,.6)');
-    eG.addColorStop(1,'rgba(255,180,200,.6)');
-    actx.fillStyle=eG;
-    rrect(actx,px+2,py+sz*.08,sz*.08,sz*.84,[r-1,0,0,r-1]); actx.fill();
+    actx.save(); actx.globalAlpha=.3;
+    var bg=actx.createLinearGradient(px,py+sz*.67,px,py+sz);
+    bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,.2)');
+    actx.fillStyle=bg;
+    rrect(actx,px+2,py+sz*.67,sz-4,sz*.31,[0,0,r-1,r-1]); actx.fill();
     actx.restore();
   }
-  // Shadow (bottom)
-  actx.save(); actx.globalAlpha=glass?.15:.3;
-  var bg=actx.createLinearGradient(px,py+sz*.67,px,py+sz);
-  bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,.2)');
-  actx.fillStyle=bg;
-  rrect(actx,px+2,py+sz*.67,sz-4,sz*.31,[0,0,r-1,r-1]); actx.fill();
-  actx.restore();
 }
 
 function buildAtlas(){
@@ -500,24 +465,16 @@ function drawCube(ctx,px,py,ci,sz,sel,alpha){
   if(src){
     ctx.drawImage(src, ci*CELL, 0, CELL, CELL, px, py, sz, sz);
   }
-  // Glass: specular caustic dots (drawn at runtime for crisp scaling)
+  // Frosted Glass: subtle inner glow at runtime
   if(glassMode && src){
-    // Primary specular dot (top-left)
-    ctx.globalAlpha=.45*alpha;
-    ctx.fillStyle='#fff';
-    ctx.beginPath();
-    ctx.arc(px+sz*.2,py+sz*.18, sz*.045, 0, Math.PI*2);
-    ctx.fill();
-    // Secondary smaller dot
-    ctx.globalAlpha=.25*alpha;
-    ctx.beginPath();
-    ctx.arc(px+sz*.32,py+sz*.13, sz*.025, 0, Math.PI*2);
-    ctx.fill();
-    // Bottom-right dim reflection
-    ctx.globalAlpha=.12*alpha;
-    ctx.beginPath();
-    ctx.arc(px+sz*.78,py+sz*.82, sz*.035, 0, Math.PI*2);
-    ctx.fill();
+    ctx.save();
+    ctx.globalAlpha=0.12*alpha;
+    var ig=ctx.createRadialGradient(px+sz*.45,py+sz*.4,0,px+sz*.45,py+sz*.4,sz*.55);
+    ig.addColorStop(0,'rgba(255,255,255,.5)');
+    ig.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=ig;
+    rrect(ctx,px+2,py+2,sz-4,sz-4,3); ctx.fill();
+    ctx.restore();
   }
   // Selection highlight (drawn on top of atlas sprite)
   if(sel){
