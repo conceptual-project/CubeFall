@@ -124,7 +124,7 @@ svg{display:inline-block;vertical-align:middle}
     <button class="overlay-btn small" id="play-btn" style="display:none"></button>
   </div>
 </div>
-<div class="frame-label">conceptual<span class="bold">project</span></div>
+<div class="frame-label" id="cpLabel" style="cursor:pointer">conceptual<span class="bold">project</span></div>
 </div>
 <script>
 // ═══════════════════════════════════════════════════
@@ -354,39 +354,76 @@ function addLBScore(sc,sec,lang,vic){
 // ATLAS (pre-rendered cube sprites)
 // ═══════════════════════════════════════════════════
 var atlasCanvas = null;
+var glassAtlas = null;
+var glassMode = false;
+
+function drawCubeToAtlas(actx, ci, co, px, py, sz, r, glass){
+  // Main gradient fill
+  var g=actx.createLinearGradient(px,py,px,py+sz);
+  if(glass){
+    g.addColorStop(0, co.light); g.addColorStop(.15, co.base);
+    g.addColorStop(.5, co.mid); g.addColorStop(.85, co.base);
+    g.addColorStop(1, co.dark);
+  } else {
+    g.addColorStop(0,co.light); g.addColorStop(.35,co.base);
+    g.addColorStop(.7,co.mid); g.addColorStop(1,co.dark);
+  }
+  actx.fillStyle=g;
+  if(glass){ actx.save(); actx.globalAlpha=.82; }
+  rrect(actx,px+.5,py+.5,sz-1,sz-1,r); actx.fill();
+  if(glass){ actx.restore(); }
+  // Inner white border
+  actx.strokeStyle=glass?'rgba(255,255,255,.45)':'rgba(255,255,255,.25)'; actx.lineWidth=glass?1.5:1;
+  rrect(actx,px+1.5,py+1.5,sz-3,sz-3,r-.5); actx.stroke();
+  // Shine (top highlight)
+  var shineH=sz*(glass?.42:.36);
+  actx.save(); actx.globalAlpha=glass?.7:.45;
+  var sg=actx.createLinearGradient(px,py,px,py+shineH);
+  sg.addColorStop(0,'rgba(255,255,255,'+(glass?'.7':'.45')+')'); sg.addColorStop(1,'rgba(255,255,255,0)');
+  actx.fillStyle=sg;
+  rrect(actx,px+2,py+2,sz-4,shineH,[r-1,r-1,0,0]); actx.fill();
+  actx.restore();
+  // Glass: prismatic band
+  if(glass){
+    var bandY=py+sz*.28, bandH=sz*.12;
+    actx.save(); actx.globalAlpha=.28;
+    var pg=actx.createLinearGradient(px,bandY,px+sz,bandY+bandH);
+    pg.addColorStop(0,'rgba(255,100,100,.6)');
+    pg.addColorStop(.17,'rgba(255,200,50,.6)');
+    pg.addColorStop(.33,'rgba(100,255,100,.6)');
+    pg.addColorStop(.5,'rgba(50,200,255,.6)');
+    pg.addColorStop(.67,'rgba(100,100,255,.6)');
+    pg.addColorStop(.83,'rgba(200,50,255,.6)');
+    pg.addColorStop(1,'rgba(255,50,150,.6)');
+    actx.fillStyle=pg;
+    rrect(actx,px+3,bandY,sz-6,bandH,[r-2,r-2,0,0]); actx.fill();
+    actx.restore();
+  }
+  // Shadow (bottom)
+  actx.save(); actx.globalAlpha=glass?.2:.3;
+  var bg=actx.createLinearGradient(px,py+sz*.67,px,py+sz);
+  bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,.2)');
+  actx.fillStyle=bg;
+  rrect(actx,px+2,py+sz*.67,sz-4,sz*.31,[0,0,r-1,r-1]); actx.fill();
+  actx.restore();
+}
 
 function buildAtlas(){
+  // Normal atlas
   atlasCanvas = document.createElement('canvas');
   atlasCanvas.width = CELL * NUM_COLORS;
   atlasCanvas.height = CELL;
   var actx = atlasCanvas.getContext('2d');
   for(var ci=0; ci<NUM_COLORS; ci++){
-    var co=COLORS[ci];
-    var px=ci*CELL, py=0, sz=CELL, r=4;
-    // Main gradient fill
-    var g=actx.createLinearGradient(px,py,px,py+sz);
-    g.addColorStop(0,co.light); g.addColorStop(.35,co.base);
-    g.addColorStop(.7,co.mid); g.addColorStop(1,co.dark);
-    actx.fillStyle=g;
-    rrect(actx,px+.5,py+.5,sz-1,sz-1,r); actx.fill();
-    // Inner white border
-    actx.strokeStyle='rgba(255,255,255,.25)'; actx.lineWidth=1;
-    rrect(actx,px+1.5,py+1.5,sz-3,sz-3,r-.5); actx.stroke();
-    // Shine (top highlight)
-    var shineH=sz*.36;
-    actx.save(); actx.globalAlpha=.45;
-    var sg=actx.createLinearGradient(px,py,px,py+shineH);
-    sg.addColorStop(0,'rgba(255,255,255,.45)'); sg.addColorStop(1,'rgba(255,255,255,0)');
-    actx.fillStyle=sg;
-    rrect(actx,px+2,py+2,sz-4,shineH,[r-1,r-1,0,0]); actx.fill();
-    actx.restore();
-    // Shadow (bottom)
-    actx.save(); actx.globalAlpha=.3;
-    var bg=actx.createLinearGradient(px,py+sz*.67,px,py+sz);
-    bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,.2)');
-    actx.fillStyle=bg;
-    rrect(actx,px+2,py+sz*.67,sz-4,sz*.31,[0,0,r-1,r-1]); actx.fill();
-    actx.restore();
+    drawCubeToAtlas(actx, ci, COLORS[ci], ci*CELL, 0, CELL, 4, false);
+  }
+  // Glass atlas
+  glassAtlas = document.createElement('canvas');
+  glassAtlas.width = CELL * NUM_COLORS;
+  glassAtlas.height = CELL;
+  var gctx = glassAtlas.getContext('2d');
+  for(var ci=0; ci<NUM_COLORS; ci++){
+    drawCubeToAtlas(gctx, ci, COLORS[ci], ci*CELL, 0, CELL, 4, true);
   }
 }
 
@@ -412,8 +449,17 @@ function rrect(ctx,x,y,w,h,radii){
 function drawCube(ctx,px,py,ci,sz,sel,alpha){
   ctx.save();
   ctx.globalAlpha=alpha;
-  if(atlasCanvas){
-    ctx.drawImage(atlasCanvas, ci*CELL, 0, CELL, CELL, px, py, sz, sz);
+  var src=glassMode?glassAtlas:atlasCanvas;
+  if(src){
+    ctx.drawImage(src, ci*CELL, 0, CELL, CELL, px, py, sz, sz);
+  }
+  // Glass: refraction dot on each cube
+  if(glassMode && src){
+    ctx.globalAlpha=.18*alpha;
+    ctx.fillStyle='#fff';
+    ctx.beginPath();
+    ctx.arc(px+sz*.25,py+sz*.22, sz*.06, 0, Math.PI*2);
+    ctx.fill();
   }
   // Selection highlight (drawn on top of atlas sprite)
   if(sel){
@@ -1239,6 +1285,12 @@ function render(now){
 
   // Build atlas for optimized rendering
   buildAtlas();
+
+  // Glass mode toggle
+  document.getElementById('cpLabel').addEventListener('click',function(){
+    glassMode=!glassMode;
+    this.querySelector('.bold').style.color=glassMode?'#c8a8e8':'#777';
+  });
 
   // Pointer Events — unified mouse + touch
   cv.addEventListener('pointerdown',handlePointerDown);
