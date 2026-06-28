@@ -2,10 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="description" content="CubeFall — стреляй кубиками, собирай группы! Пузырьковый шутер-головоломка.">
 <meta name="theme-color" content="#0d0d0d">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CubeFall">
 <link rel="manifest" href="manifest.json">
@@ -17,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;user-select:none;overflow:hidden;padding:16px;gap:16px}
+body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;user-select:none;overflow:hidden;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));gap:16px}
 .top-bar{display:flex;align-items:flex-end;justify-content:center;width:100%;position:relative}
 .title-row{display:flex;align-items:center;justify-content:center;gap:5px}
 .title-cube{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;font-family:'Inter',sans-serif;font-weight:900;font-size:22px;color:#fff;border-radius:5px;text-shadow:1px 1px 2px rgba(0,0,0,.4);position:relative;user-select:none;outline:1px solid rgba(255,255,255,.25);outline-offset:-2px}
@@ -73,6 +74,24 @@ body{background:#0d0d0d;color:#fff;font-family:'Inter',sans-serif;display:flex;f
 .restart-hint{font-size:.65rem;color:#888;font-family:'Inter',sans-serif;margin-top:10px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 svg{display:inline-block;vertical-align:middle}
+@media (max-width:540px){
+body{padding:10px;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));gap:10px}
+.game-frame{padding:10px 12px 14px;gap:14px}
+.title-cube{width:34px;height:34px;font-size:18px}
+.title-row{gap:4px}
+.main-row{flex-direction:column;align-items:center;gap:10px}
+.right-panel{flex-direction:row;min-width:0;width:100%;max-width:300px;gap:6px;align-items:stretch}
+.right-panel .btn-row{flex-direction:column;gap:4px;flex:0 0 auto;width:42px}
+.right-panel .btn-row .tbtn{padding:8px 0}
+.right-panel .stat-box{flex:1;min-width:0;padding:6px}
+.right-panel .stat-box .label{font-size:.55rem}
+.right-panel .stat-box .val{font-size:.95rem}
+.right-panel #play-btn{flex:1 1 auto;width:auto;font-size:.85rem;padding:8px 10px}
+}
+@media (max-width:360px){
+.title-cube{width:30px;height:30px;font-size:16px}
+.title-row{gap:3px}
+}
 </style>
 </head>
 <body>
@@ -82,7 +101,7 @@ svg{display:inline-block;vertical-align:middle}
 </div>
 <div class="main-row">
   <div class="board-wrap" id="canvas-wrap">
-    <canvas id="cv"></canvas>
+    <canvas id="cv" role="img" aria-label="CubeFall game board"></canvas>
     <span class="gp-indicator" id="gpIndicator"></span>
     <div id="bonus-el" class="bonus-text" style="display:none"></div>
     <div id="start-overlay" class="overlay">
@@ -109,9 +128,9 @@ svg{display:inline-block;vertical-align:middle}
   </div>
   <div class="right-panel">
     <div class="btn-row">
-      <button class="tbtn" id="pause-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
-      <button class="tbtn" id="lang-btn"></button>
-      <button class="tbtn" id="sound-btn"></button>
+      <button class="tbtn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+      <button class="tbtn" id="lang-btn" aria-label="Switch language"></button>
+      <button class="tbtn" id="sound-btn" aria-label="Toggle sound"></button>
     </div>
     <div class="stat-box" id="score-box">
       <div class="label" id="score-label"></div>
@@ -768,6 +787,8 @@ function renderLB(lb,hi,containerId){
 
 function showOverlay(type){
   state.overlay=type;
+  if(bonusTimeout){clearTimeout(bonusTimeout);bonusTimeout=null}
+  var bEl=document.getElementById('bonus-el');if(bEl)bEl.style.display='none';
   document.getElementById('start-overlay').style.display='none';
   document.getElementById('gameover-overlay').style.display='none';
   document.getElementById('victory-overlay').style.display='none';
@@ -1016,14 +1037,17 @@ function pollGamepad(dt){
     }else if(!active||phase.type!=='idle'){
       if(state.overlay==='start'||state.overlay==='gameover'||state.overlay==='victory')startGame();
     }else if(mousePos&&mousePos.y<BH){
-      // Allow shooting even without prior stick movement —
-      // use default aim position if gpAimActive is still false
+      // Shoot using last pointer position
       if(!gpAimActive){gpAimActive=true;mousePos={x:gpAimX,y:gpAimY};}
       shootAt(mousePos.x,mousePos.y);
+    }else{
+      // No valid pointer position yet — fall back to default gamepad aim
+      if(!gpAimActive||!mousePos){gpAimActive=true;mousePos={x:gpAimX,y:gpAimY};}
+      if(mousePos.y<BH)shootAt(mousePos.x,mousePos.y);
     }
   }
   if(gpJustPressed(1)){
-    if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
+    if(restartConfirm){restartConfirm=false;paused=false;resumeFromPause();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
     if(active&&phase.type==='idle'&&!paused){
       initAudio();
       var tmp=currentColor;currentColor=nextColor;nextColor=tmp;
@@ -1032,14 +1056,14 @@ function pollGamepad(dt){
   }
   if(gpJustPressed(9)){
     initAudio();
-    if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
+    if(restartConfirm){restartConfirm=false;paused=false;resumeFromPause();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
     if(state.overlay==='start'||state.overlay==='gameover'||state.overlay==='victory'){startGame()}
     else if(paused){togglePause()}
     else if(active){togglePause()}
   }
   if(gpJustPressed(8)){
     initAudio();
-    if(restartConfirm){restartConfirm=false;paused=false;gameElapsed+=(pauseStartT-gameStartTime)/1000;gameStartTime=performance.now();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
+    if(restartConfirm){restartConfirm=false;paused=false;resumeFromPause();document.getElementById('restart-overlay').style.display='none';cv.style.cursor='crosshair';updatePauseBtn();return}
     if(active&&!paused&&state.overlay==='none'){
       restartConfirm=true;
       paused=true;
@@ -1071,6 +1095,13 @@ window.addEventListener('gamepaddisconnected',function(){
 // ═══════════════════════════════════════════════════
 // PAUSE
 // ═══════════════════════════════════════════════════
+function resumeFromPause(){
+  var now=performance.now();
+  gameElapsed+=(pauseStartT-gameStartTime)/1000;
+  gameStartTime=now;
+  // Shift phase start time so in-progress animations resume from where they paused
+  if(phase&&phase.t0){phase.t0+=(now-pauseStartT)}
+}
 function togglePause(){
   if(!active||state.overlay!=='none')return;
   paused=!paused;
@@ -1084,8 +1115,7 @@ function togglePause(){
   }else{
     el.style.display='none';
     cv.style.cursor='crosshair';
-    gameElapsed+=(pauseStartT-gameStartTime)/1000;
-    gameStartTime=performance.now();
+    resumeFromPause();
     if(restartConfirm){restartConfirm=false;document.getElementById('restart-overlay').style.display='none'}
   }
   updatePauseBtn();
