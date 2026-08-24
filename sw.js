@@ -1,4 +1,4 @@
-const CACHE='cubefall-v4';
+const CACHE='cubefall-v6';
 const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install',e=>{
@@ -12,16 +12,23 @@ self.addEventListener('activate',e=>{
 });
 
 self.addEventListener('fetch',e=>{
+  const req=e.request;
+  const isNav=req.mode==='navigate';
   e.respondWith(
-    caches.match(e.request).then(cached=>{
-      if(cached) return cached;
-      return fetch(e.request).then(res=>{
-        if(res && res.status===200 && res.type==='basic'){
+    caches.match(req).then(cached=>{
+      const network=fetch(req).then(res=>{
+        if(res&&res.status===200&&res.type==='basic'){
           const cl=res.clone();
-          caches.open(CACHE).then(c=>c.put(e.request,cl));
+          caches.open(CACHE).then(c=>c.put(req,cl));
         }
         return res;
-      }).catch(()=>new Response('Offline',{status:503,statusText:'Offline',headers:{'Content-Type':'text/plain; charset=utf-8'}}));
+      }).catch(()=>cached||new Response('Offline',{status:503,statusText:'Offline',headers:{'Content-Type':'text/plain; charset=utf-8'}}));
+      // Navigation requests: network-first (users get fresh HTML on update)
+      if(isNav){
+        return network.then(function(r){return r},function(){return cached});
+      }
+      // Static assets: stale-while-revalidate (serve cached immediately, refresh in background)
+      return cached||network;
     })
   );
 });

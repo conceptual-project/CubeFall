@@ -1,15 +1,20 @@
 {
+  "id": "cubefall",
   "name": "CubeFall",
   "short_name": "CubeFall",
   "description": "Стреляй кубиками, собирай группы и очищай поле! / Shoot cubes, match groups and clear the board!",
+  "version": "1.6.0",
   "start_url": ".",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0d0d0d",
   "theme_color": "#0d0d0d",
   "lang": "ru",
+  "categories": ["games", "entertainment"],
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
+
